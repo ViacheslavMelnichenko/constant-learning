@@ -1,0 +1,52 @@
+﻿{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning",
+      "Microsoft.EntityFrameworkCore": "Warning",
+      "Quartz": "Information"
+    }
+  },
+  "AllowedHosts": "*",
+  
+  "ConnectionStrings": {
+    "_comment": "PostgreSQL connection string. For Docker: Host=postgres. For local: Host=localhost",
+    "DefaultConnection": "Host=postgres;Database=constantlearning;Username=postgres;Password=postgres"
+  },
+  
+  "Telegram": {
+    "_comment_BotToken": "Get from @BotFather on Telegram. Format: 1234567890:ABCdefGHIjklMNOpqrsTUVwxyz",
+    "BotToken": ""
+  },
+  
+  "Schedule": {
+    "_comment": "Quartz cron: 'second minute hour day month day-of-week'. Time is in UTC! Examples below:",
+    "_examples": "9 AM daily = '0 0 9 * * ?', 8:30 PM = '0 30 20 * * ?', Every 3 hours = '0 0 */3 * * ?'",
+    "RepetitionCron": "0 0 9 * * ?",
+    "NewWordsCron": "0 0 20 * * ?"
+  },
+  
+  "Learning": {
+    "_comment": "Configure learning behavior",
+    "RepetitionWordsCount": 10,
+    "NewWordsCount": 3,
+    "AnswerDelaySeconds": 5
+  },
+  
+  "Language": {
+    "_comment": "Switch languages by changing these settings. Supported UI languages: 'uk' (Ukrainian), 'en' (English)",
+    "_example_Polish": "TargetLanguage='Polish', TargetLanguageCode='pl'",
+    "_example_English": "TargetLanguage='English', TargetLanguageCode='en'",
+    "_example_Spanish": "TargetLanguage='Spanish', TargetLanguageCode='es'",
+    
+    "TargetLanguage": "Polish",
+    "SourceLanguage": "Ukrainian",
+    "TargetLanguageCode": "pl",
+    "SourceLanguageCode": "uk"
+  },
+  
+  "WordsImport": {
+    "_comment": "CSV format: rank,target,source,transcription. For English use: '/app/data/words-english.csv'",
+    "CsvPath": "/app/data/words.csv"
+  }
+}

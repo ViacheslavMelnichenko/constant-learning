@@ -1,0 +1,71 @@
+﻿services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: constantlearning-postgres
+    environment:
+      POSTGRES_DB: constantlearning
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - constantlearning
+
+  app:
+    build:
+      context: .
+      dockerfile: ConstantLearning/Dockerfile
+    container_name: constantlearning-app
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      
+      # Database connection
+      ConnectionStrings__DefaultConnection: "Host=postgres;Database=constantlearning;Username=postgres;Password=postgres"
+      
+      # REQUIRED: Get bot token from @BotFather on Telegram
+      Telegram__BotToken: "${TELEGRAM_BOT_TOKEN:-YOUR_BOT_TOKEN_HERE}"
+      
+      # Schedule (Quartz cron format: 'second minute hour day month day-of-week')
+      # Times are in UTC! Adjust for your timezone.
+      Schedule__RepetitionCron: "0 0 9 * * ?"    # 9 AM UTC daily
+      Schedule__NewWordsCron: "0 0 20 * * ?"     # 8 PM UTC daily
+      
+      # Learning configuration
+      Learning__RepetitionWordsCount: "10"       # How many words to repeat
+      Learning__NewWordsCount: "3"               # How many new words per day
+      Learning__AnswerDelaySeconds: "5"          # Delay before showing answers
+      
+      # Language settings - change these to learn different languages
+      # For English learning: TargetLanguage="English", TargetLanguageCode="en", CsvPath="/app/data/words-english.csv"
+      Language__TargetLanguage: "Polish"
+      Language__SourceLanguage: "Ukrainian"
+      Language__TargetLanguageCode: "pl"
+      Language__SourceLanguageCode: "uk"         # UI language: 'uk' or 'en'
+      
+      # CSV file with words (format: rank,target,source,transcription)
+      WordsImport__CsvPath: "/app/data/words.csv"
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./ConstantLearning/words.csv:/app/data/words.csv:ro
+    networks:
+      - constantlearning
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  constantlearning:
+    driver: bridge
