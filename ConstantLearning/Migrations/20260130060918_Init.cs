@@ -13,21 +13,6 @@ namespace ConstantLearning.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "BotConfigurations",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Key = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    Value = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_BotConfigurations", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "ChatRegistrations",
                 columns: table => new
                 {
@@ -86,12 +71,6 @@ namespace ConstantLearning.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_BotConfigurations_Key",
-                table: "BotConfigurations",
-                column: "Key",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
                 name: "IX_ChatRegistrations_ChatId",
                 table: "ChatRegistrations",
                 column: "ChatId",
@@ -117,9 +96,6 @@ namespace ConstantLearning.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "BotConfigurations");
-
             migrationBuilder.DropTable(
                 name: "ChatRegistrations");
 

@@ -7,7 +7,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 {
     public DbSet<Word> Words => Set<Word>();
     public DbSet<LearnedWord> LearnedWords => Set<LearnedWord>();
-    public DbSet<BotConfiguration> BotConfigurations => Set<BotConfiguration>();
     public DbSet<ChatRegistration> ChatRegistrations => Set<ChatRegistration>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -33,14 +32,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 .OnDelete(DeleteBehavior.Cascade);
         });
 
-        modelBuilder.Entity<BotConfiguration>(entity =>
-        {
-            entity.HasKey(e => e.Id);
-            entity.HasIndex(e => e.Key).IsUnique();
-            entity.Property(e => e.Key).HasMaxLength(100).IsRequired();
-            entity.Property(e => e.Value).HasMaxLength(500).IsRequired();
-        });
-
         modelBuilder.Entity<ChatRegistration>(entity =>
         {
             entity.HasKey(e => e.Id);
@@ -51,3 +42,4 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         });
     }
 }
+
