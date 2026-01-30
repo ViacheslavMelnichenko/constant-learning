@@ -31,7 +31,7 @@
       ConnectionStrings__DefaultConnection: "Host=postgres;Database=constantlearning;Username=postgres;Password=postgres"
       
       # REQUIRED: Get bot token from @BotFather on Telegram
-      Telegram__BotToken: "8598764891:AAGpmlTkSQ5mMYmsDWLa1wYEIe0cZV4M2-Q"
+      Telegram__BotToken: "${TELEGRAM_BOT_TOKEN}"
       
       # REQUIRED for webhook: Your public URL (e.g., https://yourdomain.com/api/telegram/webhook)
       # For local dev use ngrok: https://abc123.ngrok.io/api/telegram/webhook

@@ -278,7 +278,5 @@ Show all available commands.
 
 ## Need Help?
 
-- 📖 [Quick Start Guide](QUICKSTART.md)
-- 🌐 [Webhook Setup](WEBHOOK-SETUP.md)
 - 🏠 [Main README](../README.md)
 - 💬 Open an issue on GitHub
