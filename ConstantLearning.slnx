@@ -1,7 +1,6 @@
 <Solution>
   <Folder Name="/docs/">
     <File Path="docs/COMMANDS.md" />
-    <File Path="docs/QUICKSTART.md" />
   </Folder>
   <Project Path="ConstantLearning/ConstantLearning.csproj" />
 </Solution>

@@ -49,11 +49,11 @@ That's it! The bot will now send scheduled word lessons to your group.
 
 ## 📖 Bot Commands
 
-- `/start-learning` - Register group for learning
-- `/stop-learning` - Pause scheduled messages
-- `/restart-progress` - Clear learning progress
-- `/set-repetition-time HH:MM` - Set daily repetition time (e.g., `09:00`)
-- `/set-new-words-time HH:MM` - Set daily new words time (e.g., `20:00`)
+- `/startlearning` - Register group for learning
+- `/stoplearning` - Pause scheduled messages
+- `/restartprogress` - Clear learning progress
+- `/setrepetitiontime HH:MM` - Set daily repetition time (e.g., `09:00`)
+- `/setnewwordstime HH:MM` - Set daily new words time (e.g., `20:00`)
 - `/help` - Show all commands
 
 📚 **[Full Commands Reference →](docs/COMMANDS.md)**
@@ -103,8 +103,8 @@ Language__SourceLanguageCode: "uk"
 Each group can set its own schedule:
 
 ```
-/set-repetition-time 09:00
-/set-new-words-time 20:00
+/setrepetitiontime 09:00
+/setnewwordstime 20:00
 ```
 
 Default times for new groups: 09:00 (repetition) and 20:00 (new words).
@@ -256,7 +256,3 @@ Contributions welcome! Please submit a Pull Request.
 ## 📄 License
 
 MIT License
-
----
-
-**Built with ❤️ using .NET, PostgreSQL, and Telegram Bot API**
