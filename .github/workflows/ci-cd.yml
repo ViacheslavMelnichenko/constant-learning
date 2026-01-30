@@ -1,0 +1,169 @@
+﻿name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        type: choice
+        options:
+          - staging
+      branch:
+        description: 'Branch to deploy (leave empty for current branch)'
+        required: false
+        type: string
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  DOCKER_REGISTRY: ghcr.io
+  IMAGE_TAG: ${{ github.sha }}
+
+jobs:
+  build-and-test:
+    name: "🏗️ Build & Test"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: "📥 Checkout code"
+        uses: actions/checkout@v4
+
+      - name: "⚙️ Setup .NET"
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: "📦 Restore dependencies"
+        run: dotnet restore ConstantLearning.slnx
+
+      - name: "🔨 Build solution"
+        run: dotnet build ConstantLearning.slnx --no-restore --configuration Release
+
+  build-image:
+    name: "🐳 Build and push image"
+    needs: build-and-test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: "📥 Checkout code"
+        uses: actions/checkout@v4
+
+      - name: "🔧 Setup owner"
+        id: repo_owner
+        run: echo "owner_lc=$(echo ${{ github.repository_owner }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+
+      - name: "🔑 Login to GitHub Container Registry"
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.DOCKER_REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: "🐳 Build and push image"
+        run: |
+          IMAGE_NAME="${{ env.DOCKER_REGISTRY }}/${{ steps.repo_owner.outputs.owner_lc }}/constant-learning"
+          docker build -f ConstantLearning/ConstantLearning/Dockerfile -t ${IMAGE_NAME}:${{ env.IMAGE_TAG }} .
+          docker push ${IMAGE_NAME}:${{ env.IMAGE_TAG }}
+
+          # Tag and push latest for main branch
+          if [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            docker tag ${IMAGE_NAME}:${{ env.IMAGE_TAG }} ${IMAGE_NAME}:latest
+            docker push ${IMAGE_NAME}:latest
+          fi
+
+#  deploy-staging:
+#    name: "🚀 Deploy to Staging"
+#    needs: build-image
+#    if: |
+#      (github.ref == 'refs/heads/main' && github.event_name == 'push') ||
+#      (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'staging')
+#    runs-on: self-hosted
+#    environment: staging
+#    env:
+#      KUBECONFIG_PATH: ${{ runner.temp }}/kubeconfig
+#      NAMESPACE: apps-staging
+#      OVERLAY: staging
+#
+#    steps:
+#      - name: "📋 Deployment Info"
+#        run: |
+#          echo "🎯 Deploying to: STAGING"
+#          echo "🌿 Branch: ${{ github.ref_name }}"
+#          echo "📦 Commit: ${{ github.sha }}"
+#          echo "🔄 Trigger: ${{ github.event_name }}"
+#          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+#            echo "👤 Triggered by: ${{ github.actor }}"
+#          fi
+#
+#      - name: "📥 Checkout code"
+#        uses: actions/checkout@v4
+#
+#      - name: "🔧 Setup owner"
+#        id: setup
+#        run: echo "owner_lc=$(echo ${{ github.repository_owner }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+#
+#      - name: "🔐 Restore kubeconfig"
+#        if: secrets.KUBE_CONFIG != ''
+#        run: |
+#          echo "Restoring KUBECONFIG from secret to ${{ env.KUBECONFIG_PATH }}"
+#          echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > ${{ env.KUBECONFIG_PATH }}
+#          chmod 600 ${{ env.KUBECONFIG_PATH }}
+#          echo "KUBECONFIG=$KUBECONFIG_PATH" >> $GITHUB_ENV
+#
+#      - name: "✅ Verify Kubernetes access"
+#        run: |
+#          kubectl --kubeconfig=${{ env.KUBECONFIG_PATH }} config current-context || echo "Using default context"
+#          kubectl --kubeconfig=${{ env.KUBECONFIG_PATH }} get nodes || true
+#
+#      - name: "🏷️ Update image tags"
+#        working-directory: ./k8s/overlays/${{ env.OVERLAY }}
+#        run: |
+#          sed -i "s/GITHUB_USERNAME/${{ steps.setup.outputs.owner_lc }}/g" kustomization.yaml
+#          sed -i "s|SHA_REPLACED_BY_CICD|${{ env.IMAGE_TAG }}|g" kustomization.yaml
+#
+#      - name: "👀 Preview manifests"
+#        working-directory: ./k8s/overlays/${{ env.OVERLAY }}
+#        run: kubectl --kubeconfig=${{ env.KUBECONFIG_PATH }} kustomize . | head -n 200 || true
+#
+#      - name: "🔐 Create Telegram secret from GitHub secrets"
+#        if: ${{ secrets.TELEGRAM_BOT_TOKEN != '' && secrets.TELEGRAM_WEBHOOK_URL != '' }}
+#        run: |
+#          kubectl --kubeconfig=${{ env.KUBECONFIG_PATH }} create secret generic telegram-credentials \
+#            --from-literal=Telegram__BotToken="${{ secrets.TELEGRAM_BOT_TOKEN }}" \
+#            --from-literal=Telegram__WebhookUrl="${{ secrets.TELEGRAM_WEBHOOK_URL }}" \
+#            --dry-run=client -o yaml | kubectl --kubeconfig=${{ env.KUBECONFIG_PATH }} apply -n ${{ env.NAMESPACE }} -f -
+#
+#      - name: "🔐 Create DB secret from GitHub secret"
+#        if: ${{ secrets.DB_CONNECTION_STRING != '' }}
+#        run: |
+#          kubectl --kubeconfig=${{ env.KUBECONFIG_PATH }} create secret generic db-credentials \
+#            --from-literal=ConnectionStrings__DefaultConnection="${{ secrets.DB_CONNECTION_STRING }}" \
+#            --dry-run=client -o yaml | kubectl --kubeconfig=${{ env.KUBECONFIG_PATH }} apply -n ${{ env.NAMESPACE }} -f -
+#
+#      - name: "🚀 Deploy to Kubernetes"
+#        working-directory: ./k8s/overlays/${{ env.OVERLAY }}
+#        run: kubectl --kubeconfig=${{ env.KUBECONFIG_PATH }} apply -k .
+#
+#      - name: "⏳ Wait for rollout"
+#        run: |
+#          kubectl --kubeconfig=${{ env.KUBECONFIG_PATH }} rollout status deployment/constant-learning -n ${{ env.NAMESPACE }} --timeout=2m || true
+#
+#      - name: "📊 Deployment status"
+#        run: |
+#          echo "=== Pods ==="
+#          kubectl --kubeconfig=${{ env.KUBECONFIG_PATH }} get pods -n ${{ env.NAMESPACE }} || true
+#
+#      - name: "🧹 Cleanup old resources"
+#        run: |
+#          chmod +x k8s/scripts/cleanup-k8s-resources.sh || true
+#          ./k8s/scripts/cleanup-k8s-resources.sh ${{ env.NAMESPACE }} || true
+#        continue-on-error: true

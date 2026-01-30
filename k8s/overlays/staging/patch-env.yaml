@@ -1,0 +1,17 @@
+﻿apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: constant-learning
+spec:
+  template:
+    spec:
+      containers:
+        - name: constant-learning
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: "Staging"
+            - name: CONNECTION_STRING
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: connection_string

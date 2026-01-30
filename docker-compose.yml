@@ -25,7 +25,7 @@
     container_name: constantlearning-app
     environment:
       ASPNETCORE_ENVIRONMENT: Production
-      ASPNETCORE_URLS: http://+:8080
+      ASPNETCORE_URLS: http://+:8888
       
       # Database connection
       ConnectionStrings__DefaultConnection: "Host=postgres;Database=constantlearning;Username=postgres;Password=postgres"
@@ -53,7 +53,7 @@
       # Folder with CSV word files (all .csv files will be imported)
       WordsImport__WordsFolder: "/app/Resources/Words"
     ports:
-      - "8080:8080"
+      - "8888:8888"
     depends_on:
       postgres:
         condition: service_healthy
@@ -67,4 +67,3 @@ volumes:
 networks:
   constantlearning:
     driver: bridge
-

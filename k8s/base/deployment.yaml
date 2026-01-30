@@ -1,0 +1,43 @@
+﻿apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: constant-learning
+  labels:
+    app: constant-learning
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: constant-learning
+  template:
+    metadata:
+      labels:
+        app: constant-learning
+    spec:
+      containers:
+        - name: constant-learning
+          image: ghcr.io/GITHUB_USERNAME/constant-learning:SHA_REPLACED_BY_CICD
+          ports:
+            - containerPort: 8888
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: "Production"
+            - name: ASPNETCORE_URLS
+              value: "http://+:8888"
+          envFrom:
+            - secretRef:
+                name: telegram-credentials
+            - secretRef:
+                name: db-credentials
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8888
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8888
+            initialDelaySeconds: 10
+            periodSeconds: 20
