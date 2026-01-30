@@ -17,7 +17,14 @@
     "NewWordsTimeSet": "✅ Час нових слів встановлено на *{0}*\n\nНові слова будуть надсилатися щодня о цій годині.",
     "UpdateTimeError": "❌ Помилка при оновленні часу. Спробуйте пізніше.",
     
-    "Help": "📚 *Бот для вивчення мов*\n\n🔹 Доступні команди:\n• `/start-learning` - Розпочати навчання в цій групі\n• `/stop-learning` - Зупинити навчання\n• `/restart-progress` - Скинути прогрес навчання\n• `/set-repetition-time HH:MM` - Встановити час повторення\n• `/set-new-words-time HH:MM` - Встановити час нових слів\n\n📝 Після реєстрації бот автоматично надсилає:\n• Повторення вивчених слів\n• Нові слова для вивчення\n\n⏰ Налаштуйте графік відправки за допомогою команд вище."
+    "Help": "📚 *Бот для вивчення мов*\n\n🔹 Доступні команди:\n• `/start-learning` - Розпочати навчання в цій групі\n• `/stop-learning` - Зупинити навчання\n• `/restart-progress` - Скинути прогрес навчання\n• `/set-repetition-time HH:MM` - Встановити час повторення\n• `/set-new-words-time HH:MM` - Встановити час нових слів\n\n📝 Після реєстрації бот автоматично надсилає:\n• Повторення вивчених слів\n• Нові слова для вивчення\n\n⏰ Налаштуйте графік відправки за допомогою команд вище.",
+    
+    "NoRepetitionWords": "Немає слів для повторення.",
+    "RepetitionHeader": "Повторення — згадайте переклад:",
+    "AnswersHeader": "Відповіді:",
+    "NoNewWords": "Немає нових слів для вивчення.",
+    "NewWordsHeader": "Нові слова:",
+    "AllWordsLearned": "Всі слова вже вивчені! 🎉"
   },
   "en": {
     "ChatAlreadyRegistered": "ℹ️ This chat is already registered for learning!\n\nYou're already receiving scheduled messages.",
@@ -37,6 +44,13 @@
     "NewWordsTimeSet": "✅ New words time set to *{0}*\n\nNew words will be sent daily at this time.",
     "UpdateTimeError": "❌ Error updating time. Please try again later.",
     
-    "Help": "📚 *Language Learning Bot*\n\n🔹 Available commands:\n• `/start-learning` - Start learning in this chat\n• `/stop-learning` - Stop learning\n• `/restart-progress` - Reset learning progress\n• `/set-repetition-time HH:MM` - Set repetition time\n• `/set-new-words-time HH:MM` - Set new words time\n\n📝 After registration, the bot automatically sends:\n• Repetition of learned words\n• New words to learn\n\n⏰ Configure the schedule using the commands above."
+    "Help": "📚 *Language Learning Bot*\n\n🔹 Available commands:\n• `/start-learning` - Start learning in this chat\n• `/stop-learning` - Stop learning\n• `/restart-progress` - Reset learning progress\n• `/set-repetition-time HH:MM` - Set repetition time\n• `/set-new-words-time HH:MM` - Set new words time\n\n📝 After registration, the bot automatically sends:\n• Repetition of learned words\n• New words to learn\n\n⏰ Configure the schedule using the commands above.",
+    
+    "NoRepetitionWords": "No words for repetition.",
+    "RepetitionHeader": "Repetition — recall the translation:",
+    "AnswersHeader": "Answers:",
+    "NoNewWords": "No new words to learn.",
+    "NewWordsHeader": "New words:",
+    "AllWordsLearned": "All words already learned! 🎉"
   }
 }

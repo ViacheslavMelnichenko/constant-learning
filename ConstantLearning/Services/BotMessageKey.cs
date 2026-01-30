@@ -24,5 +24,13 @@ public enum BotMessageKey
     UpdateTimeError,
     
     // Help
-    Help
+    Help,
+    
+    // Message Formatter
+    NoRepetitionWords,
+    RepetitionHeader,
+    AnswersHeader,
+    NoNewWords,
+    NewWordsHeader,
+    AllWordsLearned
 }

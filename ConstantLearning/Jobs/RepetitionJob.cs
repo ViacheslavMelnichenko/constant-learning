@@ -2,6 +2,7 @@
 using ConstantLearning.Services;
 using Microsoft.Extensions.Options;
 using Quartz;
+using Telegram.Bot.Types.Enums;
 
 namespace ConstantLearning.Jobs;
 
@@ -105,7 +106,7 @@ public class RepetitionJob(
 
         // Send answers (target language + transcription)
         var answersMessage = messageFormatterService.FormatRepetitionAnswers(words);
-        await telegramBotService.SendMessageAsync(answersMessage, chatId);
+        await telegramBotService.SendMessageAsync(answersMessage, chatId, ParseMode.Html);
 
         // Update repetition stats
         await wordService.UpdateRepetitionAsync(chatId, words.Select(w => w.Id));

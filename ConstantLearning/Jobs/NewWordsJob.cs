@@ -2,6 +2,7 @@
 using ConstantLearning.Services;
 using Microsoft.Extensions.Options;
 using Quartz;
+using Telegram.Bot.Types.Enums;
 
 namespace ConstantLearning.Jobs;
 
@@ -10,14 +11,13 @@ public class NewWordsJob(
     IWordService wordService,
     ITelegramBotService telegramBotService,
     IMessageFormatterService messageFormatterService,
+    IBotMessagesService botMessages,
     ILogger<NewWordsJob> logger,
     IOptions<LearningOptions> learningOptions,
-    IOptions<LanguageOptions> languageOptions,
     IServiceProvider serviceProvider)
     : IJob
 {
     private readonly LearningOptions _learningOptions = learningOptions.Value;
-    private readonly LanguageOptions _languageOptions = languageOptions.Value;
 
     public async Task Execute(IJobExecutionContext context)
     {
@@ -95,16 +95,14 @@ public class NewWordsJob(
         if (words.Count == 0)
         {
             logger.LogInformation("No new words available for chat {ChatId}", chatId);
-            var completionMessage = _languageOptions.SourceLanguageCode.Equals("uk", StringComparison.CurrentCultureIgnoreCase)
-                ? "Всі слова вже вивчені! 🎉"
-                : "All words already learned! 🎉";
+            var completionMessage = botMessages.GetMessage(BotMessageKey.AllWordsLearned);
             await telegramBotService.SendMessageAsync(completionMessage, chatId);
             return;
         }
 
         // Send new words
         var message = messageFormatterService.FormatNewWords(words);
-        await telegramBotService.SendMessageAsync(message, chatId);
+        await telegramBotService.SendMessageAsync(message, chatId, ParseMode.Html);
 
         // Mark as learned
         await wordService.MarkWordsAsLearnedAsync(chatId, words.Select(w => w.Id));

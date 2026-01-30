@@ -19,14 +19,18 @@ public class BotMessagesService : IBotMessagesService
         // Get language from configuration
         var language = configuration["Language:SourceLanguageCode"]?.ToLower() ?? "uk";
         
-        // Load messages from JSON
-        var messagesSection = configuration.GetSection($"BotMessages:{language}");
+        // Load messages from JSON (BotMessages.json is loaded at root level)
+        var messagesSection = configuration.GetSection(language);
         _messages = messagesSection.GetChildren()
             .ToDictionary(x => x.Key, x => x.Value ?? string.Empty);
 
         if (_messages.Count == 0)
         {
-            _logger.LogWarning("No bot messages loaded for language: {Language}", language);
+            _logger.LogWarning("No bot messages loaded for language: {Language}. Please check Resources/BotMessages.json", language);
+        }
+        else
+        {
+            _logger.LogInformation("Loaded {Count} bot messages for language: {Language}", _messages.Count, language);
         }
     }
 

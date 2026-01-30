@@ -140,14 +140,8 @@ public class TelegramBotService(
             using var scope = serviceProvider.CreateScope();
             var chatRegistrationService = scope.ServiceProvider.GetRequiredService<IChatRegistrationService>();
 
-            var isRegistered = await chatRegistrationService.IsChatRegisteredAsync(messageChatId);
-
-            if (!isRegistered)
-            {
-                var message = botMessages.GetMessage(BotMessageKey.ChatNotRegistered);
-                await botClient.SendMessage(chatId: messageChatId, text: message, parseMode: ParseMode.Markdown);
+            if (!await EnsureChatRegisteredAsync(messageChatId, chatRegistrationService))
                 return;
-            }
 
             await chatRegistrationService.DeactivateChatAsync(messageChatId);
 
@@ -216,6 +210,9 @@ public class TelegramBotService(
             using var scope = serviceProvider.CreateScope();
             var chatRegistrationService = scope.ServiceProvider.GetRequiredService<IChatRegistrationService>();
 
+            if (!await EnsureChatRegisteredAsync(messageChatId, chatRegistrationService))
+                return;
+
             await chatRegistrationService.UpdateRepetitionTimeAsync(messageChatId, timeString);
 
             var successMessage = botMessages.GetMessage(BotMessageKey.RepetitionTimeSet, timeString);
@@ -225,7 +222,8 @@ public class TelegramBotService(
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error handling set-repetition-time command for chat {ChatId}", messageChatId);
+            logger.LogError(ex, "Error handling set-repetition-time command for chat {ChatId}. Message: {Message}", 
+                messageChatId, ex.Message);
 
             var errorMessage = botMessages.GetMessage(BotMessageKey.UpdateTimeError);
             await botClient.SendMessage(chatId: messageChatId, text: errorMessage, parseMode: ParseMode.Markdown);
@@ -256,6 +254,9 @@ public class TelegramBotService(
             using var scope = serviceProvider.CreateScope();
             var chatRegistrationService = scope.ServiceProvider.GetRequiredService<IChatRegistrationService>();
 
+            if (!await EnsureChatRegisteredAsync(messageChatId, chatRegistrationService))
+                return;
+
             await chatRegistrationService.UpdateNewWordsTimeAsync(messageChatId, timeString);
 
             var successMessage = botMessages.GetMessage(BotMessageKey.NewWordsTimeSet, timeString);
@@ -265,11 +266,29 @@ public class TelegramBotService(
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error handling set-new-words-time command for chat {ChatId}", messageChatId);
+            logger.LogError(ex, "Error handling set-new-words-time command for chat {ChatId}. Message: {Message}", 
+                messageChatId, ex.Message);
 
             var errorMessage = botMessages.GetMessage(BotMessageKey.UpdateTimeError);
             await botClient.SendMessage(chatId: messageChatId, text: errorMessage, parseMode: ParseMode.Markdown);
         }
+    }
+
+    /// <summary>
+    /// Checks if chat is registered and sends error message if not
+    /// </summary>
+    /// <returns>True if chat is registered, false otherwise</returns>
+    private async Task<bool> EnsureChatRegisteredAsync(long chatId, IChatRegistrationService chatRegistrationService)
+    {
+        var isRegistered = await chatRegistrationService.IsChatRegisteredAsync(chatId);
+        
+        if (!isRegistered)
+        {
+            var message = botMessages.GetMessage(BotMessageKey.ChatNotRegistered);
+            await botClient.SendMessage(chatId: chatId, text: message, parseMode: ParseMode.Markdown);
+        }
+
+        return isRegistered;
     }
 
     private static bool IsValidTimeFormat(string timeString)
