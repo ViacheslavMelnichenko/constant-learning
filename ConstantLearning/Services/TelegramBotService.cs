@@ -38,9 +38,9 @@ public class TelegramBotService(
     {
         try
         {
-            if (update.Type == UpdateType.Message && update.Message?.Text != null)
+            if (update is { Type: UpdateType.Message, Message.Text: not null })
             {
-                var messageText = update.Message.Text.Trim();
+                var messageText = update.Message.Text.Split("@").First().Trim();
                 var messageChatId = update.Message.Chat.Id;
 
                 logger.LogInformation("Received message from chat {ChatId}: {MessageText}", messageChatId, messageText);
