@@ -28,9 +28,9 @@
       <Content Update="Resources\BotMessages.json">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
-      <Content Update="Resources\Templates\*.html">
+      <None Include="Resources\Templates\*.html">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
+      </None>
     </ItemGroup>
 
     <ItemGroup>
