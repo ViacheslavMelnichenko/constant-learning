@@ -58,7 +58,7 @@ public static class Program
             q.AddTrigger(opts => opts
                 .ForJob(repetitionJobKey)
                 .WithIdentity("RepetitionJob-trigger")
-                .WithCronSchedule("0 * * * * ?") // Run every minute
+                .WithCronSchedule("0 * * * * ?")
                 .WithDescription("Repetition flow trigger - checks every minute"));
 
             // New Words Job - runs every minute, checks each chat's configured time
@@ -68,7 +68,7 @@ public static class Program
             q.AddTrigger(opts => opts
                 .ForJob(newWordsJobKey)
                 .WithIdentity("NewWordsJob-trigger")
-                .WithCronSchedule("0 * * * * ?") // Run every minute
+                .WithCronSchedule("0 * * * * ?")
                 .WithDescription("New words flow trigger - checks every minute"));
         });
 

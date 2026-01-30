@@ -8,31 +8,22 @@ public interface IProgressService
     Task<int> RestartProgressAsync(long chatId);
 }
 
-public class ProgressService : IProgressService
+public class ProgressService(AppDbContext context, ILogger<ProgressService> logger) : IProgressService
 {
-    private readonly AppDbContext _context;
-    private readonly ILogger<ProgressService> _logger;
-
-    public ProgressService(AppDbContext context, ILogger<ProgressService> logger)
-    {
-        _context = context;
-        _logger = logger;
-    }
-
     public async Task<int> RestartProgressAsync(long chatId)
     {
-        _logger.LogInformation("Restarting learning progress for chat {ChatId}", chatId);
+        logger.LogInformation("Restarting learning progress for chat {ChatId}", chatId);
 
-        var learnedWords = await _context.LearnedWords
+        var learnedWords = await context.LearnedWords
             .Where(lw => lw.ChatId == chatId)
             .ToListAsync();
         
         var count = learnedWords.Count;
         
-        _context.LearnedWords.RemoveRange(learnedWords);
-        await _context.SaveChangesAsync();
+        context.LearnedWords.RemoveRange(learnedWords);
+        await context.SaveChangesAsync();
 
-        _logger.LogInformation("Progress restarted for chat {ChatId}. Removed {Count} learned words", chatId, count);
+        logger.LogInformation("Progress restarted for chat {ChatId}. Removed {Count} learned words", chatId, count);
 
         return count;
     }

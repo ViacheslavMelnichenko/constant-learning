@@ -15,26 +15,18 @@ public interface IChatRegistrationService
     Task<ChatRegistration?> GetChatRegistrationAsync(long chatId);
 }
 
-public class ChatRegistrationService : IChatRegistrationService
+public class ChatRegistrationService(AppDbContext context, ILogger<ChatRegistrationService> logger)
+    : IChatRegistrationService
 {
-    private readonly AppDbContext _context;
-    private readonly ILogger<ChatRegistrationService> _logger;
-
-    public ChatRegistrationService(AppDbContext context, ILogger<ChatRegistrationService> logger)
-    {
-        _context = context;
-        _logger = logger;
-    }
-
     public async Task<bool> IsChatRegisteredAsync(long chatId)
     {
-        return await _context.ChatRegistrations
+        return await context.ChatRegistrations
             .AnyAsync(cr => cr.ChatId == chatId && cr.IsActive);
     }
 
     public async Task<ChatRegistration> RegisterChatAsync(long chatId, string? chatTitle)
     {
-        var existing = await _context.ChatRegistrations
+        var existing = await context.ChatRegistrations
             .FirstOrDefaultAsync(cr => cr.ChatId == chatId);
 
         if (existing != null)
@@ -43,8 +35,8 @@ public class ChatRegistrationService : IChatRegistrationService
             {
                 existing.IsActive = true;
                 existing.ChatTitle = chatTitle;
-                await _context.SaveChangesAsync();
-                _logger.LogInformation("Reactivated chat {ChatId} ({ChatTitle})", chatId, chatTitle);
+                await context.SaveChangesAsync();
+                logger.LogInformation("Reactivated chat {ChatId} ({ChatTitle})", chatId, chatTitle);
             }
             return existing;
         }
@@ -57,16 +49,16 @@ public class ChatRegistrationService : IChatRegistrationService
             IsActive = true
         };
 
-        _context.ChatRegistrations.Add(registration);
-        await _context.SaveChangesAsync();
+        context.ChatRegistrations.Add(registration);
+        await context.SaveChangesAsync();
 
-        _logger.LogInformation("Registered new chat {ChatId} ({ChatTitle})", chatId, chatTitle);
+        logger.LogInformation("Registered new chat {ChatId} ({ChatTitle})", chatId, chatTitle);
         return registration;
     }
 
     public async Task<List<long>> GetAllActiveChatIdsAsync()
     {
-        return await _context.ChatRegistrations
+        return await context.ChatRegistrations
             .Where(cr => cr.IsActive)
             .Select(cr => cr.ChatId)
             .ToListAsync();
@@ -74,20 +66,20 @@ public class ChatRegistrationService : IChatRegistrationService
 
     public async Task DeactivateChatAsync(long chatId)
     {
-        var registration = await _context.ChatRegistrations
+        var registration = await context.ChatRegistrations
             .FirstOrDefaultAsync(cr => cr.ChatId == chatId);
 
         if (registration != null)
         {
             registration.IsActive = false;
-            await _context.SaveChangesAsync();
-            _logger.LogInformation("Deactivated chat {ChatId}", chatId);
+            await context.SaveChangesAsync();
+            logger.LogInformation("Deactivated chat {ChatId}", chatId);
         }
     }
 
     public async Task UpdateRepetitionTimeAsync(long chatId, string time)
     {
-        var registration = await _context.ChatRegistrations
+        var registration = await context.ChatRegistrations
             .FirstOrDefaultAsync(cr => cr.ChatId == chatId && cr.IsActive);
 
         if (registration == null)
@@ -96,13 +88,13 @@ public class ChatRegistrationService : IChatRegistrationService
         }
 
         registration.RepetitionTime = time;
-        await _context.SaveChangesAsync();
-        _logger.LogInformation("Updated repetition time to {Time} for chat {ChatId}", time, chatId);
+        await context.SaveChangesAsync();
+        logger.LogInformation("Updated repetition time to {Time} for chat {ChatId}", time, chatId);
     }
 
     public async Task UpdateNewWordsTimeAsync(long chatId, string time)
     {
-        var registration = await _context.ChatRegistrations
+        var registration = await context.ChatRegistrations
             .FirstOrDefaultAsync(cr => cr.ChatId == chatId && cr.IsActive);
 
         if (registration == null)
@@ -111,13 +103,13 @@ public class ChatRegistrationService : IChatRegistrationService
         }
 
         registration.NewWordsTime = time;
-        await _context.SaveChangesAsync();
-        _logger.LogInformation("Updated new words time to {Time} for chat {ChatId}", time, chatId);
+        await context.SaveChangesAsync();
+        logger.LogInformation("Updated new words time to {Time} for chat {ChatId}", time, chatId);
     }
 
     public async Task<ChatRegistration?> GetChatRegistrationAsync(long chatId)
     {
-        return await _context.ChatRegistrations
+        return await context.ChatRegistrations
             .FirstOrDefaultAsync(cr => cr.ChatId == chatId && cr.IsActive);
     }
 }
