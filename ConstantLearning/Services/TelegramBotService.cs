@@ -1,6 +1,4 @@
-﻿using ConstantLearning.Configuration;
-using Microsoft.Extensions.Options;
-using Telegram.Bot;
+﻿using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 
@@ -14,12 +12,11 @@ public interface ITelegramBotService
 
 public class TelegramBotService(
     ITelegramBotClient botClient,
-    IOptions<LanguageOptions> languageOptions,
+    IBotMessagesService botMessages,
     ILogger<TelegramBotService> logger,
     IServiceProvider serviceProvider)
     : ITelegramBotService
 {
-    private readonly LanguageOptions _languageOptions = languageOptions.Value;
 
     public async Task SendMessageAsync(string text, long chatId, ParseMode parseMode = ParseMode.Markdown)
     {
@@ -113,40 +110,14 @@ public class TelegramBotService(
 
             if (isAlreadyRegistered)
             {
-                var message = _languageOptions.SourceLanguageCode.ToLower() == "uk"
-                    ? "ℹ️ Цей чат вже зареєстровано для навчання!\n\nВи вже отримуєте повідомлення згідно з розкладом."
-                    : "ℹ️ This chat is already registered for learning!\n\nYou're already receiving scheduled messages.";
-
+                var message = botMessages.GetMessage(BotMessageKey.ChatAlreadyRegistered);
                 await botClient.SendMessage(chatId: messageChatId, text: message, parseMode: ParseMode.Markdown);
                 return;
             }
 
             await chatRegistrationService.RegisterChatAsync(messageChatId, chatTitle);
 
-            var successMessage = _languageOptions.SourceLanguageCode.ToLower() == "uk"
-                ? @"✅ *Чат успішно зареєстровано!*
-
-                    📚 Бот буде надсилати:
-                    • Повторення вивчених слів о *09:00*
-                    • Нові слова для вивчення о *20:00*
-                    
-                    ⏰ Налаштувати час відправки:
-                    • `/set-repetition-time HH:MM` - час повторення
-                    • `/set-new-words-time HH:MM` - час нових слів
-                    
-                    Гарного навчання! 🎯"
-                : @"✅ *Chat successfully registered!*
-                    
-                    📚 Bot will send:
-                    • Repetition of learned words at *09:00*
-                    • New words to learn at *20:00*
-                    
-                    ⏰ Configure schedule:
-                    • `/set-repetition-time HH:MM` - repetition time
-                    • `/set-new-words-time HH:MM` - new words time
-                    
-                    Happy learning! 🎯";
-
+            var successMessage = botMessages.GetMessage(BotMessageKey.ChatRegisteredSuccess);
             await botClient.SendMessage(chatId: messageChatId, text: successMessage, parseMode: ParseMode.Markdown);
 
             logger.LogInformation("Chat {ChatId} ({ChatTitle}) successfully registered", messageChatId, chatTitle);
@@ -155,10 +126,7 @@ public class TelegramBotService(
         {
             logger.LogError(ex, "Error handling start-learning command for chat {ChatId}", messageChatId);
 
-            var errorMessage = _languageOptions.SourceLanguageCode.ToLower() == "uk"
-                ? "❌ Помилка при реєстрації. Спробуйте пізніше."
-                : "❌ Error during registration. Please try again later.";
-
+            var errorMessage = botMessages.GetMessage(BotMessageKey.RegistrationError);
             await botClient.SendMessage(chatId: messageChatId, text: errorMessage, parseMode: ParseMode.Markdown);
         }
     }
@@ -176,28 +144,14 @@ public class TelegramBotService(
 
             if (!isRegistered)
             {
-                var message = _languageOptions.SourceLanguageCode.ToLower() == "uk"
-                    ? "ℹ️ Цей чат ще не зареєстровано для навчання.\n\nВикористайте `/start-learning` щоб розпочати."
-                    : "ℹ️ This chat is not registered for learning.\n\nUse `/start-learning` to begin.";
-
+                var message = botMessages.GetMessage(BotMessageKey.ChatNotRegistered);
                 await botClient.SendMessage(chatId: messageChatId, text: message, parseMode: ParseMode.Markdown);
                 return;
             }
 
             await chatRegistrationService.DeactivateChatAsync(messageChatId);
 
-            var successMessage = _languageOptions.SourceLanguageCode.ToLower() == "uk"
-                ? @"✅ *Навчання зупинено*
-
-📭 Бот більше не надсилатиме повідомлення в цей чат.
-
-Ваш прогрес збережено. Використайте `/start-learning` щоб продовжити навчання."
-                : @"✅ *Learning stopped*
-
-📭 Bot will no longer send messages to this chat.
-
-Your progress is saved. Use `/start-learning` to resume learning.";
-
+            var successMessage = botMessages.GetMessage(BotMessageKey.LearningStopped);
             await botClient.SendMessage(chatId: messageChatId, text: successMessage, parseMode: ParseMode.Markdown);
 
             logger.LogInformation("Chat {ChatId} deactivated", messageChatId);
@@ -206,10 +160,7 @@ Your progress is saved. Use `/start-learning` to resume learning.";
         {
             logger.LogError(ex, "Error handling stop-learning command for chat {ChatId}", messageChatId);
 
-            var errorMessage = _languageOptions.SourceLanguageCode.ToLower() == "uk"
-                ? "❌ Помилка при зупинці навчання. Спробуйте пізніше."
-                : "❌ Error stopping learning. Please try again later.";
-
+            var errorMessage = botMessages.GetMessage(BotMessageKey.StopLearningError);
             await botClient.SendMessage(chatId: messageChatId, text: errorMessage, parseMode: ParseMode.Markdown);
         }
     }
@@ -226,10 +177,7 @@ Your progress is saved. Use `/start-learning` to resume learning.";
 
             var removedCount = await progressService.RestartProgressAsync(messageChatId);
 
-            var message = _languageOptions.SourceLanguageCode.ToLower() == "uk"
-                ? $"✅ Прогрес скинуто!\n\nВидалено {removedCount} вивчених слів.\nПочинаємо навчання спочатку! 🎯"
-                : $"✅ Progress restarted!\n\nRemoved {removedCount} learned words.\nStarting from scratch! 🎯";
-
+            var message = botMessages.GetMessage(BotMessageKey.ProgressRestarted, removedCount);
             await botClient.SendMessage(chatId: messageChatId, text: message, parseMode: ParseMode.Markdown);
 
             logger.LogInformation("Progress restart completed for chat {ChatId}. Removed {Count} words", messageChatId,
@@ -239,10 +187,7 @@ Your progress is saved. Use `/start-learning` to resume learning.";
         {
             logger.LogError(ex, "Error handling restart-progress command for chat {ChatId}", messageChatId);
 
-            var errorMessage = _languageOptions.SourceLanguageCode.ToLower() == "uk"
-                ? "❌ Помилка при скиданні прогресу. Спробуйте пізніше."
-                : "❌ Error restarting progress. Please try again later.";
-
+            var errorMessage = botMessages.GetMessage(BotMessageKey.RestartProgressError);
             await botClient.SendMessage(chatId: messageChatId, text: errorMessage, parseMode: ParseMode.Markdown);
         }
     }
@@ -254,10 +199,8 @@ Your progress is saved. Use `/start-learning` to resume learning.";
             var parts = messageText.Split(' ', StringSplitOptions.RemoveEmptyEntries);
             if (parts.Length != 2)
             {
-                var usageMessage = _languageOptions.SourceLanguageCode.ToLower() == "uk"
-                    ? "❌ Невірний формат команди.\n\nВикористання: `/set-repetition-time HH:MM`\nПриклад: `/set-repetition-time 09:30`"
-                    : "❌ Invalid command format.\n\nUsage: `/set-repetition-time HH:MM`\nExample: `/set-repetition-time 09:30`";
-
+                var usageMessage = botMessages.GetMessage(BotMessageKey.InvalidTimeCommandFormat, 
+                    "/set-repetition-time HH:MM", "/set-repetition-time 09:30");
                 await botClient.SendMessage(chatId: messageChatId, text: usageMessage, parseMode: ParseMode.Markdown);
                 return;
             }
@@ -265,10 +208,7 @@ Your progress is saved. Use `/start-learning` to resume learning.";
             var timeString = parts[1];
             if (!IsValidTimeFormat(timeString))
             {
-                var errorMessage = _languageOptions.SourceLanguageCode.ToLower() == "uk"
-                    ? "❌ Невірний формат часу. Використовуйте HH:MM (наприклад, 09:30)"
-                    : "❌ Invalid time format. Use HH:MM (e.g., 09:30)";
-
+                var errorMessage = botMessages.GetMessage(BotMessageKey.InvalidTimeFormat, "09:30");
                 await botClient.SendMessage(chatId: messageChatId, text: errorMessage, parseMode: ParseMode.Markdown);
                 return;
             }
@@ -278,10 +218,7 @@ Your progress is saved. Use `/start-learning` to resume learning.";
 
             await chatRegistrationService.UpdateRepetitionTimeAsync(messageChatId, timeString);
 
-            var successMessage = _languageOptions.SourceLanguageCode.ToLower() == "uk"
-                ? $"✅ Час повторення встановлено на *{timeString}*\n\nПовторення буде надсилатися щодня о цій годині."
-                : $"✅ Repetition time set to *{timeString}*\n\nRepetitions will be sent daily at this time.";
-
+            var successMessage = botMessages.GetMessage(BotMessageKey.RepetitionTimeSet, timeString);
             await botClient.SendMessage(chatId: messageChatId, text: successMessage, parseMode: ParseMode.Markdown);
 
             logger.LogInformation("Repetition time updated to {Time} for chat {ChatId}", timeString, messageChatId);
@@ -290,10 +227,7 @@ Your progress is saved. Use `/start-learning` to resume learning.";
         {
             logger.LogError(ex, "Error handling set-repetition-time command for chat {ChatId}", messageChatId);
 
-            var errorMessage = _languageOptions.SourceLanguageCode.ToLower() == "uk"
-                ? "❌ Помилка при оновленні часу. Спробуйте пізніше."
-                : "❌ Error updating time. Please try again later.";
-
+            var errorMessage = botMessages.GetMessage(BotMessageKey.UpdateTimeError);
             await botClient.SendMessage(chatId: messageChatId, text: errorMessage, parseMode: ParseMode.Markdown);
         }
     }
@@ -305,10 +239,8 @@ Your progress is saved. Use `/start-learning` to resume learning.";
             var parts = messageText.Split(' ', StringSplitOptions.RemoveEmptyEntries);
             if (parts.Length != 2)
             {
-                var usageMessage = _languageOptions.SourceLanguageCode.ToLower() == "uk"
-                    ? "❌ Невірний формат команди.\n\nВикористання: `/set-new-words-time HH:MM`\nПриклад: `/set-new-words-time 20:00`"
-                    : "❌ Invalid command format.\n\nUsage: `/set-new-words-time HH:MM`\nExample: `/set-new-words-time 20:00`";
-
+                var usageMessage = botMessages.GetMessage(BotMessageKey.InvalidTimeCommandFormat, 
+                    "/set-new-words-time HH:MM", "/set-new-words-time 20:00");
                 await botClient.SendMessage(chatId: messageChatId, text: usageMessage, parseMode: ParseMode.Markdown);
                 return;
             }
@@ -316,10 +248,7 @@ Your progress is saved. Use `/start-learning` to resume learning.";
             var timeString = parts[1];
             if (!IsValidTimeFormat(timeString))
             {
-                var errorMessage = _languageOptions.SourceLanguageCode.ToLower() == "uk"
-                    ? "❌ Невірний формат часу. Використовуйте HH:MM (наприклад, 20:00)"
-                    : "❌ Invalid time format. Use HH:MM (e.g., 20:00)";
-
+                var errorMessage = botMessages.GetMessage(BotMessageKey.InvalidTimeFormat, "20:00");
                 await botClient.SendMessage(chatId: messageChatId, text: errorMessage, parseMode: ParseMode.Markdown);
                 return;
             }
@@ -329,10 +258,7 @@ Your progress is saved. Use `/start-learning` to resume learning.";
 
             await chatRegistrationService.UpdateNewWordsTimeAsync(messageChatId, timeString);
 
-            var successMessage = _languageOptions.SourceLanguageCode.ToLower() == "uk"
-                ? $"✅ Час нових слів встановлено на *{timeString}*\n\nНові слова будуть надсилатися щодня о цій годині."
-                : $"✅ New words time set to *{timeString}*\n\nNew words will be sent daily at this time.";
-
+            var successMessage = botMessages.GetMessage(BotMessageKey.NewWordsTimeSet, timeString);
             await botClient.SendMessage(chatId: messageChatId, text: successMessage, parseMode: ParseMode.Markdown);
 
             logger.LogInformation("New words time updated to {Time} for chat {ChatId}", timeString, messageChatId);
@@ -341,10 +267,7 @@ Your progress is saved. Use `/start-learning` to resume learning.";
         {
             logger.LogError(ex, "Error handling set-new-words-time command for chat {ChatId}", messageChatId);
 
-            var errorMessage = _languageOptions.SourceLanguageCode.ToLower() == "uk"
-                ? "❌ Помилка при оновленні часу. Спробуйте пізніше."
-                : "❌ Error updating time. Please try again later.";
-
+            var errorMessage = botMessages.GetMessage(BotMessageKey.UpdateTimeError);
             await botClient.SendMessage(chatId: messageChatId, text: errorMessage, parseMode: ParseMode.Markdown);
         }
     }
@@ -366,37 +289,8 @@ Your progress is saved. Use `/start-learning` to resume learning.";
 
     private async Task HandleHelpCommand(long messageChatId)
     {
-        var message = _languageOptions.SourceLanguageCode.Equals("uk"
-            , StringComparison.CurrentCultureIgnoreCase)
-            ? @"📚 *Бот для вивчення мов*
-
-                🔹 Доступні команди:
-                • `/start-learning` - Розпочати навчання в цій групі
-                • `/stop-learning` - Зупинити навчання
-                • `/restart-progress` - Скинути прогрес навчання
-                • `/set-repetition-time HH:MM` - Встановити час повторення (наприклад, `/set-repetition-time 09:30`)
-                • `/set-new-words-time HH:MM` - Встановити час нових слів (наприклад, `/set-new-words-time 20:00`)
-                
-                📝 Після реєстрації бот автоматично надсилає:
-                • Повторення вивчених слів
-                • Нові слова для вивчення
-                
-                ⏰ Ви можете налаштувати графік відправки за допомогою команд вище."
-            : @"📚 *Language Learning Bot*
-                
-                🔹 Available commands:
-                • `/start-learning` - Start learning in this chat
-                • `/stop-learning` - Stop learning
-                • `/restart-progress` - Reset learning progress
-                • `/set-repetition-time HH:MM` - Set repetition time (e.g., `/set-repetition-time 09:30`)
-                • `/set-new-words-time HH:MM` - Set new words time (e.g., `/set-new-words-time 20:00`)
-                
-                📝 After registration, the bot automatically sends:
-                • Repetition of learned words
-                • New words to learn
-                
-                ⏰ You can configure the schedule using the commands above.";
-
+        var message = botMessages.GetMessage(BotMessageKey.Help);
         await botClient.SendMessage(chatId: messageChatId, text: message, parseMode: ParseMode.Markdown);
     }
 }
+

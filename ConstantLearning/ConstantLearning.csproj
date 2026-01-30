@@ -25,6 +25,9 @@
       <Content Include="..\.dockerignore">
         <Link>.dockerignore</Link>
       </Content>
+      <Content Update="Resources\BotMessages.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
     </ItemGroup>
 
     <ItemGroup>

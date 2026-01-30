@@ -1,0 +1,42 @@
+﻿{
+  "uk": {
+    "ChatAlreadyRegistered": "ℹ️ Цей чат вже зареєстровано для навчання!\n\nВи вже отримуєте повідомлення згідно з розкладом.",
+    "ChatRegisteredSuccess": "✅ *Чат успішно зареєстровано!*\n\n📚 Бот буде надсилати:\n• Повторення вивчених слів о *09:00*\n• Нові слова для вивчення о *20:00*\n\n⏰ Налаштувати час відправки:\n• `/set-repetition-time HH:MM` - час повторення\n• `/set-new-words-time HH:MM` - час нових слів\n\nГарного навчання! 🎯",
+    "RegistrationError": "❌ Помилка при реєстрації. Спробуйте пізніше.",
+    
+    "ChatNotRegistered": "ℹ️ Цей чат ще не зареєстровано для навчання.\n\nВикористайте `/start-learning` щоб розпочати.",
+    "LearningStopped": "✅ *Навчання зупинено*\n\n📭 Бот більше не надсилатиме повідомлення в цей чат.\n\nВаш прогрес збережено. Використайте `/start-learning` щоб продовжити навчання.",
+    "StopLearningError": "❌ Помилка при зупинці навчання. Спробуйте пізніше.",
+    
+    "ProgressRestarted": "✅ Прогрес скинуто!\n\nВидалено {0} вивчених слів.\nПочинаємо навчання спочатку! 🎯",
+    "RestartProgressError": "❌ Помилка при скиданні прогресу. Спробуйте пізніше.",
+    
+    "InvalidTimeCommandFormat": "❌ Невірний формат команди.\n\nВикористання: `{0}`\nПриклад: `{1}`",
+    "InvalidTimeFormat": "❌ Невірний формат часу. Використовуйте HH:MM (наприклад, {0})",
+    "RepetitionTimeSet": "✅ Час повторення встановлено на *{0}*\n\nПовторення буде надсилатися щодня о цій годині.",
+    "NewWordsTimeSet": "✅ Час нових слів встановлено на *{0}*\n\nНові слова будуть надсилатися щодня о цій годині.",
+    "UpdateTimeError": "❌ Помилка при оновленні часу. Спробуйте пізніше.",
+    
+    "Help": "📚 *Бот для вивчення мов*\n\n🔹 Доступні команди:\n• `/start-learning` - Розпочати навчання в цій групі\n• `/stop-learning` - Зупинити навчання\n• `/restart-progress` - Скинути прогрес навчання\n• `/set-repetition-time HH:MM` - Встановити час повторення\n• `/set-new-words-time HH:MM` - Встановити час нових слів\n\n📝 Після реєстрації бот автоматично надсилає:\n• Повторення вивчених слів\n• Нові слова для вивчення\n\n⏰ Налаштуйте графік відправки за допомогою команд вище."
+  },
+  "en": {
+    "ChatAlreadyRegistered": "ℹ️ This chat is already registered for learning!\n\nYou're already receiving scheduled messages.",
+    "ChatRegisteredSuccess": "✅ *Chat successfully registered!*\n\n📚 Bot will send:\n• Repetition of learned words at *09:00*\n• New words to learn at *20:00*\n\n⏰ Configure schedule:\n• `/set-repetition-time HH:MM` - repetition time\n• `/set-new-words-time HH:MM` - new words time\n\nHappy learning! 🎯",
+    "RegistrationError": "❌ Error during registration. Please try again later.",
+    
+    "ChatNotRegistered": "ℹ️ This chat is not registered for learning.\n\nUse `/start-learning` to begin.",
+    "LearningStopped": "✅ *Learning stopped*\n\n📭 Bot will no longer send messages to this chat.\n\nYour progress is saved. Use `/start-learning` to resume learning.",
+    "StopLearningError": "❌ Error stopping learning. Please try again later.",
+    
+    "ProgressRestarted": "✅ Progress restarted!\n\nRemoved {0} learned words.\nStarting from scratch! 🎯",
+    "RestartProgressError": "❌ Error restarting progress. Please try again later.",
+    
+    "InvalidTimeCommandFormat": "❌ Invalid command format.\n\nUsage: `{0}`\nExample: `{1}`",
+    "InvalidTimeFormat": "❌ Invalid time format. Use HH:MM (e.g., {0})",
+    "RepetitionTimeSet": "✅ Repetition time set to *{0}*\n\nRepetitions will be sent daily at this time.",
+    "NewWordsTimeSet": "✅ New words time set to *{0}*\n\nNew words will be sent daily at this time.",
+    "UpdateTimeError": "❌ Error updating time. Please try again later.",
+    
+    "Help": "📚 *Language Learning Bot*\n\n🔹 Available commands:\n• `/start-learning` - Start learning in this chat\n• `/stop-learning` - Stop learning\n• `/restart-progress` - Reset learning progress\n• `/set-repetition-time HH:MM` - Set repetition time\n• `/set-new-words-time HH:MM` - Set new words time\n\n📝 After registration, the bot automatically sends:\n• Repetition of learned words\n• New words to learn\n\n⏰ Configure the schedule using the commands above."
+  }
+}

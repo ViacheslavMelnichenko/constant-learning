@@ -22,6 +22,9 @@ public static class Program
             builder.Configuration.GetSection(WordsImportOptions.SectionName));
         builder.Services.Configure<LanguageOptions>(builder.Configuration.GetSection(LanguageOptions.SectionName));
 
+        // Load bot messages from JSON
+        builder.Configuration.AddJsonFile("Resources/BotMessages.json", optional: false, reloadOnChange: true);
+
         // Database
         var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
                                ?? throw new InvalidOperationException(
@@ -41,6 +44,7 @@ public static class Program
         builder.Services.AddScoped<ITelegramBotService, TelegramBotService>();
 
         // Services
+        builder.Services.AddSingleton<IBotMessagesService, BotMessagesService>();
         builder.Services.AddScoped<IWordService, WordService>();
         builder.Services.AddScoped<IMessageFormatterService, MessageFormatterService>();
         builder.Services.AddScoped<IWordImportService, WordImportService>();
