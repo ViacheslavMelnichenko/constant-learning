@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ConstantLearning.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialMigrationWithChatRegistrations : Migration
+    public partial class Init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -36,7 +36,9 @@ namespace ConstantLearning.Migrations
                     ChatId = table.Column<long>(type: "bigint", nullable: false),
                     ChatTitle = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
                     RegisteredAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    IsActive = table.Column<bool>(type: "boolean", nullable: false)
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
+                    RepetitionTime = table.Column<string>(type: "character varying(5)", maxLength: 5, nullable: false),
+                    NewWordsTime = table.Column<string>(type: "character varying(5)", maxLength: 5, nullable: false)
                 },
                 constraints: table =>
                 {

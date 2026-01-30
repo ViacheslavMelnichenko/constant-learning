@@ -46,6 +46,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             entity.HasKey(e => e.Id);
             entity.HasIndex(e => e.ChatId).IsUnique();
             entity.Property(e => e.ChatTitle).HasMaxLength(200);
+            entity.Property(e => e.RepetitionTime).HasMaxLength(5).IsRequired();
+            entity.Property(e => e.NewWordsTime).HasMaxLength(5).IsRequired();
         });
     }
 }

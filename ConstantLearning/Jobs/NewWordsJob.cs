@@ -23,7 +23,7 @@ public class NewWordsJob(
     {
         try
         {
-            logger.LogInformation("Starting new words job for all registered chats");
+            logger.LogInformation("Starting new words job check for all registered chats");
 
             // Get all active chats
             using var scope = serviceProvider.CreateScope();
@@ -36,22 +36,48 @@ public class NewWordsJob(
                 return;
             }
 
-            logger.LogInformation("Processing new words for {Count} registered chat(s)", activeChatIds.Count);
+            // Get current time in HH:mm format
+            var currentTime = DateTime.Now.ToString("HH:mm");
+            var currentHour = DateTime.Now.Hour;
+            var currentMinute = DateTime.Now.Minute;
+
+            logger.LogInformation("Current time: {CurrentTime}. Checking {Count} chat(s) for scheduled new words", 
+                currentTime, activeChatIds.Count);
+
+            var processedCount = 0;
 
             foreach (var chatId in activeChatIds)
             {
                 try
                 {
-                    await ProcessNewWordsForChatAsync(chatId);
+                    var chatRegistration = await chatRegistrationService.GetChatRegistrationAsync(chatId);
+                    if (chatRegistration == null)
+                        continue;
+
+                    // Parse configured time
+                    var configuredTime = chatRegistration.NewWordsTime;
+                    var timeParts = configuredTime.Split(':');
+                    if (timeParts.Length != 2)
+                        continue;
+
+                    var configuredHour = int.Parse(timeParts[0]);
+                    var configuredMinute = int.Parse(timeParts[1]);
+
+                    // Check if current time matches configured time (within same hour and minute)
+                    if (currentHour == configuredHour && currentMinute == configuredMinute)
+                    {
+                        await ProcessNewWordsForChatAsync(chatId);
+                        processedCount++;
+                    }
                 }
                 catch (Exception ex)
                 {
-                    logger.LogError(ex, "Error processing new words for chat {ChatId}", chatId);
+                    logger.LogError(ex, "Error processing new words check for chat {ChatId}", chatId);
                     // Continue with other chats
                 }
             }
 
-            logger.LogInformation("New words job completed for all chats");
+            logger.LogInformation("New words job check completed. Processed {ProcessedCount} chat(s)", processedCount);
         }
         catch (Exception ex)
         {

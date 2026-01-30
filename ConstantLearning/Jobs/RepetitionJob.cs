@@ -21,7 +21,7 @@ public class RepetitionJob(
     {
         try
         {
-            logger.LogInformation("Starting repetition job for all registered chats");
+            logger.LogInformation("Starting repetition job check for all registered chats");
 
             // Get all active chats
             using var scope = serviceProvider.CreateScope();
@@ -34,22 +34,48 @@ public class RepetitionJob(
                 return;
             }
 
-            logger.LogInformation("Processing repetition for {Count} registered chat(s)", activeChatIds.Count);
+            // Get current time in HH:mm format
+            var currentTime = DateTime.Now.ToString("HH:mm");
+            var currentHour = DateTime.Now.Hour;
+            var currentMinute = DateTime.Now.Minute;
+
+            logger.LogInformation("Current time: {CurrentTime}. Checking {Count} chat(s) for scheduled repetition", 
+                currentTime, activeChatIds.Count);
+
+            var processedCount = 0;
 
             foreach (var chatId in activeChatIds)
             {
                 try
                 {
-                    await ProcessRepetitionForChatAsync(chatId);
+                    var chatRegistration = await chatRegistrationService.GetChatRegistrationAsync(chatId);
+                    if (chatRegistration == null)
+                        continue;
+
+                    // Parse configured time
+                    var configuredTime = chatRegistration.RepetitionTime;
+                    var timeParts = configuredTime.Split(':');
+                    if (timeParts.Length != 2)
+                        continue;
+
+                    var configuredHour = int.Parse(timeParts[0]);
+                    var configuredMinute = int.Parse(timeParts[1]);
+
+                    // Check if current time matches configured time (within same hour and minute)
+                    if (currentHour == configuredHour && currentMinute == configuredMinute)
+                    {
+                        await ProcessRepetitionForChatAsync(chatId);
+                        processedCount++;
+                    }
                 }
                 catch (Exception ex)
                 {
-                    logger.LogError(ex, "Error processing repetition for chat {ChatId}", chatId);
+                    logger.LogError(ex, "Error processing repetition check for chat {ChatId}", chatId);
                     // Continue with other chats
                 }
             }
 
-            logger.LogInformation("Repetition job completed for all chats");
+            logger.LogInformation("Repetition job check completed. Processed {ProcessedCount} chat(s)", processedCount);
         }
         catch (Exception ex)
         {

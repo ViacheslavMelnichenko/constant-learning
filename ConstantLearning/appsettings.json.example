@@ -20,8 +20,9 @@
   },
   
   "Schedule": {
-    "_comment": "Quartz cron: 'second minute hour day month day-of-week'. Time is in UTC! Examples below:",
-    "_examples": "9 AM daily = '0 0 9 * * ?', 8:30 PM = '0 30 20 * * ?', Every 3 hours = '0 0 */3 * * ?'",
+    "_comment": "Default schedule times for new chats (in HH:MM format, 24-hour). Each chat can customize via bot commands:",
+    "_commands": "Use /set-repetition-time HH:MM and /set-new-words-time HH:MM in your Telegram chat",
+    "_note": "These values are only used as defaults when a new chat registers with /start-learning",
     "RepetitionCron": "0 0 9 * * ?",
     "NewWordsCron": "0 0 20 * * ?"
   },

@@ -48,34 +48,28 @@ public static class Program
         builder.Services.AddScoped<IProgressService, ProgressService>();
         builder.Services.AddScoped<IChatRegistrationService, ChatRegistrationService>();
 
-        // Quartz Scheduler
-        var scheduleOptions = builder
-                                  .Configuration
-                                  .GetSection(ScheduleOptions.SectionName)
-                                  .Get<ScheduleOptions>()
-                              ?? throw new InvalidOperationException("Schedule configuration not found");
-
+        // Quartz Scheduler - Jobs run every minute and check if it's time to process based on chat configuration
         builder.Services.AddQuartz(q =>
         {
-            // Repetition Job
+            // Repetition Job - runs every minute, checks each chat's configured time
             var repetitionJobKey = new JobKey("RepetitionJob");
             q.AddJob<RepetitionJob>(opts => opts.WithIdentity(repetitionJobKey));
-
+            
             q.AddTrigger(opts => opts
                 .ForJob(repetitionJobKey)
                 .WithIdentity("RepetitionJob-trigger")
-                .WithCronSchedule(scheduleOptions.RepetitionCron)
-                .WithDescription("Repetition flow trigger"));
+                .WithCronSchedule("0 * * * * ?") // Run every minute
+                .WithDescription("Repetition flow trigger - checks every minute"));
 
-            // New Words Job
+            // New Words Job - runs every minute, checks each chat's configured time
             var newWordsJobKey = new JobKey("NewWordsJob");
             q.AddJob<NewWordsJob>(opts => opts.WithIdentity(newWordsJobKey));
-
+            
             q.AddTrigger(opts => opts
                 .ForJob(newWordsJobKey)
                 .WithIdentity("NewWordsJob-trigger")
-                .WithCronSchedule(scheduleOptions.NewWordsCron)
-                .WithDescription("New words flow trigger"));
+                .WithCronSchedule("0 * * * * ?") // Run every minute
+                .WithDescription("New words flow trigger - checks every minute"));
         });
 
         builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);

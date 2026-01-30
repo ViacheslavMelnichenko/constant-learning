@@ -10,6 +10,9 @@ public interface IChatRegistrationService
     Task<ChatRegistration> RegisterChatAsync(long chatId, string? chatTitle);
     Task<List<long>> GetAllActiveChatIdsAsync();
     Task DeactivateChatAsync(long chatId);
+    Task UpdateRepetitionTimeAsync(long chatId, string time);
+    Task UpdateNewWordsTimeAsync(long chatId, string time);
+    Task<ChatRegistration?> GetChatRegistrationAsync(long chatId);
 }
 
 public class ChatRegistrationService : IChatRegistrationService
@@ -80,5 +83,41 @@ public class ChatRegistrationService : IChatRegistrationService
             await _context.SaveChangesAsync();
             _logger.LogInformation("Deactivated chat {ChatId}", chatId);
         }
+    }
+
+    public async Task UpdateRepetitionTimeAsync(long chatId, string time)
+    {
+        var registration = await _context.ChatRegistrations
+            .FirstOrDefaultAsync(cr => cr.ChatId == chatId && cr.IsActive);
+
+        if (registration == null)
+        {
+            throw new InvalidOperationException($"Chat {chatId} is not registered or not active");
+        }
+
+        registration.RepetitionTime = time;
+        await _context.SaveChangesAsync();
+        _logger.LogInformation("Updated repetition time to {Time} for chat {ChatId}", time, chatId);
+    }
+
+    public async Task UpdateNewWordsTimeAsync(long chatId, string time)
+    {
+        var registration = await _context.ChatRegistrations
+            .FirstOrDefaultAsync(cr => cr.ChatId == chatId && cr.IsActive);
+
+        if (registration == null)
+        {
+            throw new InvalidOperationException($"Chat {chatId} is not registered or not active");
+        }
+
+        registration.NewWordsTime = time;
+        await _context.SaveChangesAsync();
+        _logger.LogInformation("Updated new words time to {Time} for chat {ChatId}", time, chatId);
+    }
+
+    public async Task<ChatRegistration?> GetChatRegistrationAsync(long chatId)
+    {
+        return await _context.ChatRegistrations
+            .FirstOrDefaultAsync(cr => cr.ChatId == chatId && cr.IsActive);
     }
 }

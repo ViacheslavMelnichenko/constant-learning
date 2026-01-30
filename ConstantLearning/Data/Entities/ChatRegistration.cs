@@ -7,4 +7,6 @@ public class ChatRegistration
     public string? ChatTitle { get; set; }
     public DateTime RegisteredAt { get; set; } = DateTime.UtcNow;
     public bool IsActive { get; set; } = true;
+    public string RepetitionTime { get; set; } = "09:00";
+    public string NewWordsTime { get; set; } = "20:00";
 }
