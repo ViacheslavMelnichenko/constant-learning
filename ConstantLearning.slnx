@@ -2,5 +2,11 @@
   <Folder Name="/docs/">
     <File Path="docs/COMMANDS.md" />
   </Folder>
+  <Folder Name="/SolutionItems/">
+    <File Path=".dockerignore" />
+    <File Path=".gitignore" />
+    <File Path="docker-compose.yml" />
+    <File Path="README.md" />
+  </Folder>
   <Project Path="ConstantLearning/ConstantLearning.csproj" />
 </Solution>
