@@ -6,12 +6,16 @@
     <File Path="docs/IMPLEMENTATION.md" />
     <File Path="docs/MIGRATION.md" />
     <File Path="docs/MULTI-CHAT.md" />
+    <File Path="docs/NGROK-GUIDE.md" />
     <File Path="docs/QUICKSTART.md" />
     <File Path="docs/README.md" />
     <File Path="docs/SCHEDULE-CONFIGURATION.md" />
     <File Path="docs/START-LEARNING.md" />
     <File Path="docs/STATUS.md" />
     <File Path="docs/UPDATE-SUMMARY.md" />
+    <File Path="docs/WEBHOOK-QUICKSTART.md" />
+    <File Path="docs/WEBHOOK-SETUP.md" />
+    <File Path="docs/WEBHOOK-TROUBLESHOOTING.md" />
   </Folder>
   <Project Path="ConstantLearning/ConstantLearning.csproj" />
 </Solution>

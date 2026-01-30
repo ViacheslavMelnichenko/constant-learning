@@ -16,7 +16,11 @@
   
   "Telegram": {
     "_comment_BotToken": "Get from @BotFather on Telegram. Format: 1234567890:ABCdefGHIjklMNOpqrsTUVwxyz",
-    "BotToken": ""
+    "BotToken": "",
+    "_comment_WebhookUrl": "Your public URL for webhook. Format: https://yourdomain.com/api/telegram/webhook",
+    "_comment_WebhookUrl_ngrok": "For local dev with ngrok: https://abc123.ngrok.io/api/telegram/webhook",
+    "_comment_WebhookUrl_note": "Leave empty to skip automatic webhook registration (can set manually)",
+    "WebhookUrl": ""
   },
   
   "Learning": {

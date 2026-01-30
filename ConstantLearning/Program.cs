@@ -53,7 +53,7 @@ public static class Program
             // Repetition Job - runs every minute, checks each chat's configured time
             var repetitionJobKey = new JobKey("RepetitionJob");
             q.AddJob<RepetitionJob>(opts => opts.WithIdentity(repetitionJobKey));
-            
+
             q.AddTrigger(opts => opts
                 .ForJob(repetitionJobKey)
                 .WithIdentity("RepetitionJob-trigger")
@@ -63,7 +63,7 @@ public static class Program
             // New Words Job - runs every minute, checks each chat's configured time
             var newWordsJobKey = new JobKey("NewWordsJob");
             q.AddJob<NewWordsJob>(opts => opts.WithIdentity(newWordsJobKey));
-            
+
             q.AddTrigger(opts => opts
                 .ForJob(newWordsJobKey)
                 .WithIdentity("NewWordsJob-trigger")
@@ -75,6 +75,7 @@ public static class Program
 
         // Hosted Services
         builder.Services.AddHostedService<DatabaseInitializationService>();
+        builder.Services.AddHostedService<WebhookConfigurationService>();
 
         // Controllers
         builder.Services.AddControllers();
