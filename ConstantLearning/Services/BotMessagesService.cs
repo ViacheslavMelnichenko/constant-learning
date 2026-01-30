@@ -1,4 +1,8 @@
-﻿namespace ConstantLearning.Services;
+﻿using ConstantLearning.Configuration;
+using ConstantLearning.Enums;
+using Microsoft.Extensions.Options;
+
+namespace ConstantLearning.Services;
 
 public interface IBotMessagesService
 {
@@ -12,14 +16,12 @@ public class BotMessagesService : IBotMessagesService
 
     public BotMessagesService(
         IConfiguration configuration,
+        IOptions<LanguageOptions> languageOptions,
         ILogger<BotMessagesService> logger)
     {
         _logger = logger;
         
-        // Get language from configuration
-        var language = configuration["Language:SourceLanguageCode"]?.ToLower() ?? "uk";
-        
-        // Load messages from JSON (BotMessages.json is loaded at root level)
+        var language = languageOptions.Value.SourceLanguageCode.ToLower();
         var messagesSection = configuration.GetSection(language);
         _messages = messagesSection.GetChildren()
             .ToDictionary(x => x.Key, x => x.Value ?? string.Empty);

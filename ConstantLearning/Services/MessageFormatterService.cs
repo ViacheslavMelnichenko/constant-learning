@@ -1,4 +1,5 @@
 ﻿using ConstantLearning.Data.Entities;
+using ConstantLearning.Enums;
 using System.Text;
 
 namespace ConstantLearning.Services;
@@ -10,7 +11,9 @@ public interface IMessageFormatterService
     string FormatNewWords(List<Word> words);
 }
 
-public class MessageFormatterService(IBotMessagesService botMessages) : IMessageFormatterService
+public class MessageFormatterService(
+    IBotMessagesService botMessages,
+    ITemplateService templateService) : IMessageFormatterService
 {
     public string FormatRepetitionQuestions(List<Word> words)
     {
@@ -38,21 +41,10 @@ public class MessageFormatterService(IBotMessagesService botMessages) : IMessage
             return string.Empty;
         }
 
-        return BuildHtmlTable(
-            header: botMessages.GetMessage(BotMessageKey.AnswersHeader),
-            words: words,
-            formatRow: (_, word, num, maxLengths) =>
-            {
-                var source = word.SourceMeaning.PadRight(maxLengths.sourceLength);
-                var target = word.TargetWord.PadRight(maxLengths.targetLength);
-                return $"{num} {source}  →  {target}  [{word.PhoneticTranscription}]";
-            },
-            calculateMaxLengths: wordList => (
-                sourceLength: wordList.Max(w => w.SourceMeaning.Length),
-                targetLength: wordList.Max(w => w.TargetWord.Length),
-                transcriptionLength: 0
-            )
-        );
+        var header = botMessages.GetMessage(BotMessageKey.AnswersHeader);
+        var rows = BuildRepetitionAnswersRows(words);
+        
+        return templateService.Render(TemplateType.RepetitionAnswers, header, rows);
     }
 
     public string FormatNewWords(List<Word> words)
@@ -62,44 +54,47 @@ public class MessageFormatterService(IBotMessagesService botMessages) : IMessage
             return botMessages.GetMessage(BotMessageKey.NoNewWords);
         }
 
-        return BuildHtmlTable(
-            header: botMessages.GetMessage(BotMessageKey.NewWordsHeader),
-            words: words,
-            formatRow: (_, word, num, maxLengths) =>
-            {
-                var target = word.TargetWord.PadRight(maxLengths.targetLength);
-                var transcription = $"[{word.PhoneticTranscription}]".PadRight(maxLengths.transcriptionLength + 2);
-                return $"{num} {target}  {transcription}  → {word.SourceMeaning}";
-            },
-            calculateMaxLengths: wordList => (
-                sourceLength: 0,
-                targetLength: wordList.Max(w => w.TargetWord.Length),
-                transcriptionLength: wordList.Max(w => w.PhoneticTranscription.Length)
-            )
-        );
+        var header = botMessages.GetMessage(BotMessageKey.NewWordsHeader);
+        var rows = BuildNewWordsRows(words);
+        
+        return templateService.Render(TemplateType.NewWords, header, rows);
     }
 
-    private static string BuildHtmlTable(
-        string header,
-        List<Word> words,
-        Func<int, Word, string, (int sourceLength, int targetLength, int transcriptionLength), string> formatRow,
-        Func<List<Word>, (int sourceLength, int targetLength, int transcriptionLength)> calculateMaxLengths)
+    private static string BuildRepetitionAnswersRows(List<Word> words)
     {
+        var maxSourceLength = words.Max(w => w.SourceMeaning.Length);
+        var maxTargetLength = words.Max(w => w.TargetWord.Length);
+
         var sb = new StringBuilder();
-        sb.AppendLine($"✅ <b>{header}</b>\n");
-
-        var maxLengths = calculateMaxLengths(words);
-
-        sb.AppendLine("<pre>");
         for (var i = 0; i < words.Count; i++)
         {
             var word = words[i];
             var num = $"{i + 1}.".PadRight(3);
-            sb.AppendLine(formatRow(i, word, num, maxLengths));
-        }
-        sb.AppendLine("</pre>");
+            var source = word.SourceMeaning.PadRight(maxSourceLength);
+            var target = word.TargetWord.PadRight(maxTargetLength);
 
-        return sb.ToString();
+            sb.AppendLine($"{num} {source}  →  {target}  [{word.PhoneticTranscription}]");
+        }
+
+        return sb.ToString().TrimEnd();
+    }
+
+    private static string BuildNewWordsRows(List<Word> words)
+    {
+        var maxTargetLength = words.Max(w => w.TargetWord.Length);
+        var maxTranscriptionLength = words.Max(w => w.PhoneticTranscription.Length);
+
+        var sb = new StringBuilder();
+        for (var i = 0; i < words.Count; i++)
+        {
+            var word = words[i];
+            var num = $"{i + 1}.".PadRight(3);
+            var target = word.TargetWord.PadRight(maxTargetLength);
+            var transcription = $"[{word.PhoneticTranscription}]".PadRight(maxTranscriptionLength + 2);
+
+            sb.AppendLine($"{num} {target}  {transcription}  → {word.SourceMeaning}");
+        }
+
+        return sb.ToString().TrimEnd();
     }
 }
-

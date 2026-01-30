@@ -1,4 +1,4 @@
-﻿namespace ConstantLearning.Services;
+﻿namespace ConstantLearning.Enums;
 
 public enum BotMessageKey
 {

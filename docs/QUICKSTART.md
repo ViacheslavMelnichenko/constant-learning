@@ -1,102 +1,177 @@
-﻿﻿﻿# Quick Start Guide
+﻿# Quick Start Guide
 
-## Running with Docker Compose (Recommended)
+Get your Telegram learning bot running in 5 minutes!
 
-### 1. Configure Bot Token
+## Prerequisites
 
-Edit `docker-compose.yml` and set your Telegram bot token:
+- Docker Desktop installed
+- Telegram bot token from [@BotFather](https://t.me/BotFather)
+
+## Setup
+
+### 1. Get Bot Token
+
+1. Open Telegram and search for `@BotFather`
+2. Send `/newbot` and follow instructions
+3. Copy your token (format: `1234567890:ABCdefGHIjklMNOpqrsTUVwxyz`)
+
+### 2. Clone Repository
+
+```bash
+git clone https://github.com/YOUR_USERNAME/constant-learning.git
+cd constant-learning
+```
+
+### 3. Configure Bot Token
+
+Edit `docker-compose.yml`:
 
 ```yaml
 environment:
   Telegram__BotToken: "YOUR_BOT_TOKEN_HERE"
 ```
 
-Or set environment variable:
+Or use environment variable:
+
 ```bash
 export TELEGRAM_BOT_TOKEN="1234567890:ABCdefGHIjklMNOpqrsTUVwxyz"
 ```
 
-### 2. Start Services
+### 4. Start Services
 
 ```bash
 docker-compose up -d
 ```
 
-### 3. Register Your Chat
+### 5. Register Your Group
 
-Add the bot to your Telegram group and send:
-```
-/start-learning
-```
+1. Add the bot to your Telegram group
+2. Send: `/start-learning`
+3. Done! Messages will be sent at 09:00 and 20:00 daily
 
-### 4. Configure Schedule (Optional)
+## Configuration
 
-Set when you want to receive messages:
-```
-/set-repetition-time 09:00
-/set-new-words-time 20:00
-```
+### Change Learning Times
 
-### 5. Check Logs
-
-```bash
-docker-compose logs -f app
-```
-
-### 6. Stop Services
-
-```bash
-docker-compose down
-```
-
-## Getting Telegram Credentials
-
-### Bot Token
-
-1. Open Telegram and search for `@BotFather`
-2. Send `/newbot`
-3. Follow instructions
-4. Copy the token (looks like `1234567890:ABCdefGHIjklMNOpqrsTUVwxyz`)
-
-**Note:** Chat ID is no longer needed! Each chat registers itself using `/start-learning` command.
-
-## Customizing Language
-
-Edit `docker-compose.yml` environment variables:
-
-```yaml
-Language__TargetLanguage: "English"
-Language__SourceLanguage: "Ukrainian"
-Language__TargetLanguageCode: "en"
-Language__SourceLanguageCode: "uk"
-```
-
-## Changing Schedule
-
-Each chat configures its own schedule using bot commands:
+Each group can set its own schedule:
 
 ```
-/set-repetition-time 09:00     # When to send repetition words
-/set-new-words-time 20:00      # When to send new words
+/set-repetition-time 08:00
+/set-new-words-time 19:00
 ```
 
-**Default times for new chats:**
-- Repetition: 09:00 (local time)
-- New words: 20:00 (local time)
-
-**Note:** Schedule is now managed per-chat in the database. Each group can have different times!
-
-## Customizing Word Counts
+### Change Word Counts
 
 Edit `docker-compose.yml`:
 
 ```yaml
-Learning__RepetitionWordsCount: "15"
-Learning__NewWordsCount: "5"
-Learning__AnswerDelaySeconds: "10"
+Learning__RepetitionWordsCount: "15"   # Words to repeat
+Learning__NewWordsCount: "5"           # New words per day
+Learning__AnswerDelaySeconds: "30"     # Delay before answers
 ```
 
-## Viewing Database
+### Change Language
+
+To learn English instead of Polish:
+
+```yaml
+Language__TargetLanguage: "English"
+Language__TargetLanguageCode: "en"
+WordsImport__CsvPath: "/app/data/words-english.csv"
+```
+
+## Commands
+
+| Command | Description |
+|---------|-------------|
+| `/start-learning` | Register group for learning |
+| `/stop-learning` | Pause scheduled messages |
+| `/restart-progress` | Clear learning progress |
+| `/set-repetition-time HH:MM` | Set repetition time (e.g., `09:00`) |
+| `/set-new-words-time HH:MM` | Set new words time (e.g., `20:00`) |
+| `/help` | Show all commands |
+
+📚 [Full Commands Reference →](COMMANDS.md)
+
+## Useful Commands
+
+```bash
+# View logs
+docker-compose logs -f app
+
+# Restart bot
+docker-compose restart app
+
+# Stop everything
+docker-compose down
+
+# Check database
+docker-compose exec postgres psql -U postgres -d constantlearning
+```
+
+## Troubleshooting
+
+### Bot doesn't respond
+
+1. Check logs:
+   ```bash
+   docker-compose logs -f app
+   ```
+
+2. Verify bot token is correct in `docker-compose.yml`
+
+3. Ensure bot was added to the group
+
+4. Send `/start-learning` to register the group
+
+### Messages not sending
+
+1. Check if group is registered:
+   ```bash
+   docker-compose logs app | grep "registered"
+   ```
+
+2. Verify schedule is set correctly:
+   ```
+   /set-repetition-time 09:00
+   /set-new-words-time 20:00
+   ```
+
+3. Wait for scheduled time or check Quartz logs:
+   ```bash
+   docker-compose logs app | grep "Quartz"
+   ```
+
+### Database errors
+
+1. Restart services:
+   ```bash
+   docker-compose down
+   docker-compose up -d
+   ```
+
+2. Check database is running:
+   ```bash
+   docker-compose ps
+   ```
+
+3. Migrations run automatically on startup
+
+## Next Steps
+
+- 📖 [Commands Reference](COMMANDS.md) - Learn all bot commands
+- 🌐 [Webhook Setup](WEBHOOK-SETUP.md) - Deploy to production
+- 🔧 [docker-compose.yml](../docker-compose.yml) - See all configuration options
+
+## Support
+
+- 💬 Open an issue on GitHub
+- 📚 Check [documentation](../README.md)
+- 🔍 Search existing issues
+
+---
+
+**That's it!** Your bot is now running and ready to help you learn! 🎉
 
 ```bash
 docker exec -it constantlearning-postgres psql -U postgres -d constantlearning

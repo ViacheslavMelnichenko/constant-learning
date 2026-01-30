@@ -42,7 +42,6 @@ public class WordImportService(
         var lines = await File.ReadAllLinesAsync(filePath);
         var words = new List<Word>();
 
-        // Skip header row
         for (var i = 1; i < lines.Length; i++)
         {
             var line = lines[i].Trim();

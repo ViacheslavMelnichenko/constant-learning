@@ -15,17 +15,15 @@ public static class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        // Configure Options
+
         builder.Services.Configure<TelegramOptions>(builder.Configuration.GetSection(TelegramOptions.SectionName));
         builder.Services.Configure<LearningOptions>(builder.Configuration.GetSection(LearningOptions.SectionName));
         builder.Services.Configure<WordsImportOptions>(
             builder.Configuration.GetSection(WordsImportOptions.SectionName));
         builder.Services.Configure<LanguageOptions>(builder.Configuration.GetSection(LanguageOptions.SectionName));
 
-        // Load bot messages from JSON
         builder.Configuration.AddJsonFile("Resources/BotMessages.json", optional: false, reloadOnChange: true);
 
-        // Database
         var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
                                ?? throw new InvalidOperationException(
                                    "Connection string 'DefaultConnection' not found");
@@ -33,7 +31,6 @@ public static class Program
         builder.Services.AddDbContext<AppDbContext>(options =>
             options.UseNpgsql(connectionString));
 
-        // Telegram Bot
         var telegramOptions = builder
                                   .Configuration
                                   .GetSection(TelegramOptions.SectionName)
@@ -43,45 +40,39 @@ public static class Program
         builder.Services.AddSingleton<ITelegramBotClient>(new TelegramBotClient(telegramOptions.BotToken));
         builder.Services.AddScoped<ITelegramBotService, TelegramBotService>();
 
-        // Services
         builder.Services.AddSingleton<IBotMessagesService, BotMessagesService>();
+        builder.Services.AddSingleton<ITemplateService, TemplateService>();
         builder.Services.AddScoped<IWordService, WordService>();
         builder.Services.AddScoped<IMessageFormatterService, MessageFormatterService>();
         builder.Services.AddScoped<IWordImportService, WordImportService>();
         builder.Services.AddScoped<IProgressService, ProgressService>();
         builder.Services.AddScoped<IChatRegistrationService, ChatRegistrationService>();
 
-        // Quartz Scheduler - Jobs run every minute and check if it's time to process based on chat configuration
         builder.Services.AddQuartz(q =>
         {
-            // Repetition Job - runs every minute, checks each chat's configured time
+
             var repetitionJobKey = new JobKey("RepetitionJob");
             q.AddJob<RepetitionJob>(opts => opts.WithIdentity(repetitionJobKey));
 
             q.AddTrigger(opts => opts
                 .ForJob(repetitionJobKey)
                 .WithIdentity("RepetitionJob-trigger")
-                .WithCronSchedule("0 * * * * ?")
-                .WithDescription("Repetition flow trigger - checks every minute"));
+                .WithCronSchedule("0 * * * * ?"));
 
-            // New Words Job - runs every minute, checks each chat's configured time
             var newWordsJobKey = new JobKey("NewWordsJob");
             q.AddJob<NewWordsJob>(opts => opts.WithIdentity(newWordsJobKey));
 
             q.AddTrigger(opts => opts
                 .ForJob(newWordsJobKey)
                 .WithIdentity("NewWordsJob-trigger")
-                .WithCronSchedule("0 * * * * ?")
-                .WithDescription("New words flow trigger - checks every minute"));
+                .WithCronSchedule("0 * * * * ?"));
         });
 
         builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
 
-        // Hosted Services
         builder.Services.AddHostedService<DatabaseInitializationService>();
         builder.Services.AddHostedService<WebhookConfigurationService>();
 
-        // Controllers
         builder.Services.AddControllers();
         builder.Services.AddOpenApi();
 
