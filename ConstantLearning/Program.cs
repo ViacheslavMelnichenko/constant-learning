@@ -17,7 +17,6 @@ public static class Program
 
         // Configure Options
         builder.Services.Configure<TelegramOptions>(builder.Configuration.GetSection(TelegramOptions.SectionName));
-        builder.Services.Configure<ScheduleOptions>(builder.Configuration.GetSection(ScheduleOptions.SectionName));
         builder.Services.Configure<LearningOptions>(builder.Configuration.GetSection(LearningOptions.SectionName));
         builder.Services.Configure<WordsImportOptions>(
             builder.Configuration.GetSection(WordsImportOptions.SectionName));

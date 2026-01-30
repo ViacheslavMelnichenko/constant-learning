@@ -1,4 +1,4 @@
-﻿# Telegram Language Learning Bot
+﻿﻿﻿# Telegram Language Learning Bot
 
 A production-ready Telegram bot for learning foreign words through spaced repetition. Built with .NET 10, PostgreSQL, and EF Core.
 
@@ -52,6 +52,8 @@ That's it! The bot will now send scheduled word lessons to your group.
 - `/start-learning` - Register group for learning
 - `/stop-learning` - Pause scheduled messages
 - `/restart-progress` - Clear group's learning progress
+- `/set-repetition-time HH:MM` - Set when repetition messages are sent (e.g., `/set-repetition-time 09:00`)
+- `/set-new-words-time HH:MM` - Set when new words are sent (e.g., `/set-new-words-time 20:00`)
 - `/help` - Show available commands
 
 ### Technical Features
@@ -90,12 +92,18 @@ WordsImport__CsvPath: "/app/data/words-english.csv"
 
 ### Schedule Configuration
 
-Customize when messages are sent (times in UTC):
+Each chat can configure its own schedule using bot commands:
 
-```yaml
-Schedule__RepetitionCron: "0 0 9 * * ?"   # 9 AM daily
-Schedule__NewWordsCron: "0 0 20 * * ?"    # 8 PM daily
 ```
+/set-repetition-time 09:00
+/set-new-words-time 20:00
+```
+
+Default times for new chats:
+- Repetition: 09:00 (local time)
+- New words: 20:00 (local time)
+
+**Note:** Schedule is now managed per-chat in the database, allowing each group to have its own learning schedule.
 
 ### Learning Parameters
 

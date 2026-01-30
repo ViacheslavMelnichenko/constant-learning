@@ -11,18 +11,16 @@ Use this checklist to ensure successful deployment.
   - Follow instructions
   - Save bot token (format: `1234567890:ABCdefGHIjklMNOpqrsTUVwxyz`)
 
-- [ ] Get Chat ID
-  - Add bot to group chat
-  - Send a message in the group
-  - Visit: `https://api.telegram.org/bot<YOUR_TOKEN>/getUpdates`
-  - Copy chat ID (negative number for groups)
+**Note:** Chat ID is no longer needed in configuration. Each chat registers itself using `/start-learning` command.
 
 ### 2. Prepare Environment
 
 - [ ] Docker Desktop installed and running
-- [ ] `.env` file created from `.env.example`
-- [ ] Bot token added to `.env`
-- [ ] Chat ID added to `.env`
+- [ ] Bot token ready (will be added to user secrets or environment)
+
+**Note:** Schedule times are now configured per-chat via bot commands after registration:
+- `/set-repetition-time HH:MM` - Set when to send repetition words
+- `/set-new-words-time HH:MM` - Set when to send new words
 
 ### 3. Prepare Word List
 
@@ -126,35 +124,38 @@ Expected response:
 {"status":"healthy","timestamp":"2026-01-29T..."}
 ```
 
-### 5. Test Telegram Connection (Optional)
+### 5. Test Telegram Bot Registration
 
-Wait for scheduled job time OR trigger manually:
+In your Telegram group chat:
 
-```bash
-# Connect to database
-docker exec -it constantlearning-postgres psql -U postgres -d constantlearning
+1. **Register the chat:**
+   ```
+   /start-learning
+   ```
+   
+2. **Set schedule times (optional):**
+   ```
+   /set-repetition-time 09:00
+   /set-new-words-time 20:00
+   ```
 
-# Temporarily change schedule to trigger immediately
-# (Jobs run at second 0 of each minute if you use: "0 * * * * ?")
-```
-
-Then check group chat for messages.
+3. **Wait for scheduled time** or check logs to see when jobs run
 
 ## Configuration Verification
 
 ### Check Environment Variables
 
 ```bash
-docker exec -it constantlearning-app env | Select-String -Pattern "Telegram|Language|Schedule"
+docker exec -it constantlearning-app env | Select-String -Pattern "Telegram|Language|Learning"
 ```
 
 Verify:
 - [ ] `Telegram__BotToken` is set
-- [ ] `Telegram__ChatId` is set
 - [ ] `Language__TargetLanguage` is correct
-- [ ] `Schedule__RepetitionCron` is correct
-- [ ] `Schedule__NewWordsCron` is correct
+- [ ] `Learning__RepetitionWordsCount` is correct
+- [ ] `Learning__NewWordsCount` is correct
 
+**Note:** Schedule is now managed per-chat in the database, not via environment variables.
 ### Check CSV Import
 
 ```bash
@@ -210,19 +211,25 @@ docker-compose restart app
 ### Telegram messages not sent
 
 - [ ] Verify bot token is correct
-- [ ] Verify chat ID is correct (including negative sign for groups)
+- [ ] Verify chat is registered (use `/start-learning` in the group)
 - [ ] Check bot is added to the group
 - [ ] Check bot has permission to send messages
 - [ ] Review app logs for Telegram API errors
+- [ ] Verify schedule times are set correctly (use bot commands to check/update)
 
 ### Schedule not working
 
-- [ ] Verify cron format is correct
-- [ ] Check timezone (app uses UTC)
-- [ ] Review Quartz logs:
+- [ ] Verify chat is registered in the database
+- [ ] Check schedule times for the chat:
   ```bash
-  docker-compose logs app | Select-String -Pattern "Quartz|Job"
+  docker exec -it constantlearning-postgres psql -U postgres -d constantlearning -c 'SELECT "ChatId", "RepetitionTime", "NewWordsTime" FROM "ChatRegistrations";'
   ```
+- [ ] Update schedule times using bot commands if needed
+- [ ] Review job execution logs:
+  ```bash
+  docker-compose logs app | Select-String -Pattern "Quartz|Job|repetition|new words"
+  ```
+- [ ] Jobs run every minute and check each chat's configured times
 
 ## Production Deployment (Kubernetes)
 

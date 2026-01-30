@@ -1,4 +1,4 @@
-﻿# ✅ FINAL IMPLEMENTATION STATUS
+﻿﻿# ✅ FINAL IMPLEMENTATION STATUS
 
 ## All Tasks Completed
 
@@ -156,7 +156,6 @@ Schedule__RepetitionCron: "0 0 */3 * * ?"
 Edit `docker-compose.yml`:
 ```yaml
 Telegram__BotToken: "1234567890:ABCdefGHIjklMNOpqrsTUVwxyz"
-Telegram__ChatId: "-1001234567890"
 ```
 
 ### 2. Deploy
@@ -164,10 +163,23 @@ Telegram__ChatId: "-1001234567890"
 docker-compose up -d
 ```
 
-### 3. Verify
+### 3. Register Chat
+In your Telegram group:
+```
+/start-learning
+```
+
+### 4. Configure Schedule (Optional)
+```
+/set-repetition-time 09:00
+/set-new-words-time 20:00
+```
+
+### 5. Verify
 ```bash
 docker-compose logs -f app
 curl http://localhost:8080/api/telegram/health
+```
 ```
 
 ### 4. Use

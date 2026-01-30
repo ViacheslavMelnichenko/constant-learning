@@ -1,4 +1,4 @@
-﻿﻿# Language Learning Telegram Bot
+﻿﻿﻿# Language Learning Telegram Bot
 
 A production-ready, **language-agnostic** Telegram bot for learning foreign words through spaced repetition. Built with .NET and PostgreSQL, designed for Kubernetes deployment.
 
@@ -59,25 +59,19 @@ All settings use the **IOptions pattern** and can be configured via:
 #### `Telegram`
 ```json
 {
-  "BotToken": "your_bot_token",
-  "ChatId": 123456789
+  "BotToken": "your_bot_token"
 }
 ```
-Environment variables: `Telegram__BotToken`, `Telegram__ChatId`
+Environment variable: `Telegram__BotToken`
 
-#### `Schedule`
-Quartz cron format: `second minute hour day-of-month month day-of-week`
-```json
-{
-  "RepetitionCron": "0 0 9 * * ?",
-  "NewWordsCron": "0 0 20 * * ?"
-}
-```
-Examples:
-- `0 0 9 * * ?` - Every day at 9:00 AM
-- `0 0 20 * * ?` - Every day at 8:00 PM
-- `0 0 */3 * * ?` - Every 3 hours
+**Note:** Chat ID is no longer needed. Each chat registers using `/start-learning` command.
 
+#### `Schedule` (Deprecated)
+**Schedule is now configured per-chat via bot commands:**
+- `/set-repetition-time HH:MM` - Set repetition time
+- `/set-new-words-time HH:MM` - Set new words time
+
+Default times for new chats: 09:00 (repetition), 20:00 (new words)
 #### `Learning`
 ```json
 {
@@ -326,11 +320,6 @@ spec:
             secretKeyRef:
               name: constantlearning-secret
               key: TELEGRAM_BOT_TOKEN
-        - name: Telegram__ChatId
-          valueFrom:
-            secretKeyRef:
-              name: constantlearning-secret
-              key: TELEGRAM_CHAT_ID
         envFrom:
         - configMapRef:
             name: constantlearning-config

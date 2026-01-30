@@ -8,8 +8,10 @@
     <File Path="docs/MULTI-CHAT.md" />
     <File Path="docs/QUICKSTART.md" />
     <File Path="docs/README.md" />
+    <File Path="docs/SCHEDULE-CONFIGURATION.md" />
     <File Path="docs/START-LEARNING.md" />
     <File Path="docs/STATUS.md" />
+    <File Path="docs/UPDATE-SUMMARY.md" />
   </Folder>
   <Project Path="ConstantLearning/ConstantLearning.csproj" />
 </Solution>

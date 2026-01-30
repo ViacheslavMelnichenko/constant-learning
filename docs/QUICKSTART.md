@@ -1,18 +1,19 @@
-﻿﻿# Quick Start Guide
+﻿﻿﻿# Quick Start Guide
 
 ## Running with Docker Compose (Recommended)
 
-### 1. Configure Environment
+### 1. Configure Bot Token
 
-Create `.env` file:
-```bash
-cp .env.example .env
+Edit `docker-compose.yml` and set your Telegram bot token:
+
+```yaml
+environment:
+  Telegram__BotToken: "YOUR_BOT_TOKEN_HERE"
 ```
 
-Edit `.env`:
-```env
-TELEGRAM_BOT_TOKEN=1234567890:ABCdefGHIjklMNOpqrsTUVwxyz
-TELEGRAM_CHAT_ID=-1001234567890
+Or set environment variable:
+```bash
+export TELEGRAM_BOT_TOKEN="1234567890:ABCdefGHIjklMNOpqrsTUVwxyz"
 ```
 
 ### 2. Start Services
@@ -21,13 +22,28 @@ TELEGRAM_CHAT_ID=-1001234567890
 docker-compose up -d
 ```
 
-### 3. Check Logs
+### 3. Register Your Chat
+
+Add the bot to your Telegram group and send:
+```
+/start-learning
+```
+
+### 4. Configure Schedule (Optional)
+
+Set when you want to receive messages:
+```
+/set-repetition-time 09:00
+/set-new-words-time 20:00
+```
+
+### 5. Check Logs
 
 ```bash
 docker-compose logs -f app
 ```
 
-### 4. Stop Services
+### 6. Stop Services
 
 ```bash
 docker-compose down
@@ -42,13 +58,7 @@ docker-compose down
 3. Follow instructions
 4. Copy the token (looks like `1234567890:ABCdefGHIjklMNOpqrsTUVwxyz`)
 
-### Chat ID
-
-1. Add your bot to a group chat
-2. Send any message in the group
-3. Visit: `https://api.telegram.org/bot<YOUR_BOT_TOKEN>/getUpdates`
-4. Find `"chat":{"id":-1001234567890}` in the response
-5. Copy the chat ID (negative number for groups)
+**Note:** Chat ID is no longer needed! Each chat registers itself using `/start-learning` command.
 
 ## Customizing Language
 
@@ -63,12 +73,18 @@ Language__SourceLanguageCode: "uk"
 
 ## Changing Schedule
 
-Edit `docker-compose.yml` cron expressions:
+Each chat configures its own schedule using bot commands:
 
-```yaml
-Schedule__RepetitionCron: "0 0 9 * * ?"   # 9:00 AM daily
-Schedule__NewWordsCron: "0 30 20 * * ?"    # 8:30 PM daily
 ```
+/set-repetition-time 09:00     # When to send repetition words
+/set-new-words-time 20:00      # When to send new words
+```
+
+**Default times for new chats:**
+- Repetition: 09:00 (local time)
+- New words: 20:00 (local time)
+
+**Note:** Schedule is now managed per-chat in the database. Each group can have different times!
 
 ## Customizing Word Counts
 

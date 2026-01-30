@@ -31,12 +31,7 @@
       ConnectionStrings__DefaultConnection: "Host=postgres;Database=constantlearning;Username=postgres;Password=postgres"
       
       # REQUIRED: Get bot token from @BotFather on Telegram
-      Telegram__BotToken: "${TELEGRAM_BOT_TOKEN:-YOUR_BOT_TOKEN_HERE}"
-      
-      # Schedule (Quartz cron format: 'second minute hour day month day-of-week')
-      # Times are in UTC! Adjust for your timezone.
-      Schedule__RepetitionCron: "0 0 9 * * ?"    # 9 AM UTC daily
-      Schedule__NewWordsCron: "0 0 20 * * ?"     # 8 PM UTC daily
+      Telegram__BotToken: "8598764891:AAGpmlTkSQ5mMYmsDWLa1wYEIe0cZV4M2-Q"
       
       # Learning configuration
       Learning__RepetitionWordsCount: "10"       # How many words to repeat
@@ -69,3 +64,4 @@ volumes:
 networks:
   constantlearning:
     driver: bridge
+
