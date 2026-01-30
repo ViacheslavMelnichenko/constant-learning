@@ -12,7 +12,7 @@ A production-ready Telegram bot for learning foreign words through spaced repeti
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/YOUR_USERNAME/constant-learning.git
+   git clone https://github.com/ViacheslavMelnichenko/constant-learning.git
    cd constant-learning
    ```
 
@@ -82,13 +82,21 @@ Language__SourceLanguageCode: "uk"
 
 ### Changing Language
 
-To learn English instead of Polish:
+The bot automatically imports all CSV files from `Resources/Words/` folder.
+
+To add a new language:
+1. Create a CSV file: `words-{target}-{source}.csv` (e.g., `words-english-ukrainian.csv`)
+2. Place it in `Resources/Words/` folder
+3. Update language settings:
 
 ```yaml
 Language__TargetLanguage: "English"
 Language__TargetLanguageCode: "en"
-WordsImport__CsvPath: "/app/data/words-english.csv"
+Language__SourceLanguage: "Ukrainian"
+Language__SourceLanguageCode: "uk"
 ```
+
+**Note:** All CSV files in the folder will be imported on first startup.
 
 ### Per-Chat Schedules
 
@@ -228,7 +236,8 @@ ConstantLearning/
 ├── HostedServices/     # Background services
 ├── Resources/          # Localization & templates
 │   ├── BotMessages.json
-│   └── Templates/
+│   ├── Templates/      # HTML templates
+│   └── Words/          # CSV vocabulary files
 ├── Migrations/         # Database migrations
 ├── docs/               # Documentation
 └── docker-compose.yml  # Docker setup

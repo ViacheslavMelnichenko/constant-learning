@@ -44,21 +44,19 @@
       Learning__AnswerDelaySeconds: "5"          # Delay before showing answers
       
       # Language settings - change these to learn different languages
-      # For English learning: TargetLanguage="English", TargetLanguageCode="en", CsvPath="/app/data/words-english.csv"
+      # For English: TargetLanguage="English", TargetLanguageCode="en", CsvPath="/app/Resources/Words/words-english-ukrainian.csv"
       Language__TargetLanguage: "Polish"
       Language__SourceLanguage: "Ukrainian"
       Language__TargetLanguageCode: "pl"
       Language__SourceLanguageCode: "uk"         # UI language: 'uk' or 'en'
       
-      # CSV file with words (format: rank,target,source,transcription)
-      WordsImport__CsvPath: "/app/data/words.csv"
+      # Folder with CSV word files (all .csv files will be imported)
+      WordsImport__WordsFolder: "/app/Resources/Words"
     ports:
       - "8080:8080"
     depends_on:
       postgres:
         condition: service_healthy
-    volumes:
-      - ./ConstantLearning/words.csv:/app/data/words.csv:ro
     networks:
       - constantlearning
     restart: unless-stopped

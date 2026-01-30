@@ -22,11 +22,11 @@ public class WordImportService(
 
     public async Task ImportFromCsvAsync()
     {
-        var filePath = _importOptions.CsvPath;
+        var folderPath = _importOptions.WordsFolder;
         
-        if (!File.Exists(filePath))
+        if (!Directory.Exists(folderPath))
         {
-            logger.LogWarning("CSV file not found: {FilePath}", filePath);
+            logger.LogWarning("Words folder not found: {FolderPath}", folderPath);
             return;
         }
 
@@ -37,8 +37,50 @@ public class WordImportService(
             return;
         }
 
-        logger.LogInformation("Starting CSV import from {FilePath}", filePath);
+        var csvFiles = Directory.GetFiles(folderPath, "*.csv");
+        
+        if (csvFiles.Length == 0)
+        {
+            logger.LogWarning("No CSV files found in {FolderPath}", folderPath);
+            return;
+        }
 
+        logger.LogInformation("Found {Count} CSV file(s) in {FolderPath}", csvFiles.Length, folderPath);
+
+        var allWords = new List<Word>();
+
+        foreach (var filePath in csvFiles)
+        {
+            var fileName = Path.GetFileName(filePath);
+            logger.LogInformation("Processing {FileName}", fileName);
+
+            try
+            {
+                var words = await ParseCsvFileAsync(filePath, fileName);
+                allWords.AddRange(words);
+                logger.LogInformation("Loaded {Count} words from {FileName}", words.Count, fileName);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error processing {FileName}", fileName);
+            }
+        }
+
+        if (allWords.Count > 0)
+        {
+            await context.Words.AddRangeAsync(allWords);
+            await context.SaveChangesAsync();
+            logger.LogInformation("Successfully imported {Count} words from {FileCount} file(s)", 
+                allWords.Count, csvFiles.Length);
+        }
+        else
+        {
+            logger.LogWarning("No words imported from any CSV file");
+        }
+    }
+
+    private async Task<List<Word>> ParseCsvFileAsync(string filePath, string fileName)
+    {
         var lines = await File.ReadAllLinesAsync(filePath);
         var words = new List<Word>();
 
@@ -53,7 +95,7 @@ public class WordImportService(
             var parts = line.Split(',');
             if (parts.Length < 4)
             {
-                logger.LogWarning("Invalid CSV line at row {Row}: {Line}", i + 1, line);
+                logger.LogWarning("{FileName}: Invalid CSV line at row {Row}: {Line}", fileName, i + 1, line);
                 continue;
             }
 
@@ -67,15 +109,6 @@ public class WordImportService(
             });
         }
 
-        if (words.Count > 0)
-        {
-            await context.Words.AddRangeAsync(words);
-            await context.SaveChangesAsync();
-            logger.LogInformation("Successfully imported {Count} words", words.Count);
-        }
-        else
-        {
-            logger.LogWarning("No words found in CSV file");
-        }
+        return words;
     }
 }

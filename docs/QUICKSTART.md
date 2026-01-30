@@ -18,7 +18,7 @@ Get your Telegram learning bot running in 5 minutes!
 ### 2. Clone Repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/constant-learning.git
+git clone https://github.com/ViacheslavMelnichenko/constant-learning.git
 cd constant-learning
 ```
 
@@ -72,13 +72,17 @@ Learning__AnswerDelaySeconds: "30"     # Delay before answers
 
 ### Change Language
 
-To learn English instead of Polish:
+To add/use different language:
+
+1. Add CSV file to `Resources/Words/` (e.g., `words-english-ukrainian.csv`)
+2. Update `docker-compose.yml`:
 
 ```yaml
 Language__TargetLanguage: "English"
 Language__TargetLanguageCode: "en"
-WordsImport__CsvPath: "/app/data/words-english.csv"
 ```
+
+All CSV files in `Resources/Words/` are automatically imported on first startup.
 
 ## Commands
 
