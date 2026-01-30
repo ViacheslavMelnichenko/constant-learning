@@ -46,7 +46,7 @@ docker-compose up -d
 ### 5. Register Your Group
 
 1. Add the bot to your Telegram group
-2. Send: `/start-learning`
+2. Send: `/startlearning`
 3. Done! Messages will be sent at 09:00 and 20:00 daily
 
 ## Configuration
@@ -56,8 +56,8 @@ docker-compose up -d
 Each group can set its own schedule:
 
 ```
-/set-repetition-time 08:00
-/set-new-words-time 19:00
+/setrepetitiontime 08:00
+/setnewwordstime 19:00
 ```
 
 ### Change Word Counts
@@ -88,11 +88,11 @@ All CSV files in `Resources/Words/` are automatically imported on first startup.
 
 | Command | Description |
 |---------|-------------|
-| `/start-learning` | Register group for learning |
-| `/stop-learning` | Pause scheduled messages |
-| `/restart-progress` | Clear learning progress |
-| `/set-repetition-time HH:MM` | Set repetition time (e.g., `09:00`) |
-| `/set-new-words-time HH:MM` | Set new words time (e.g., `20:00`) |
+| `/startlearning` | Register group for learning |
+| `/stoplearning` | Pause scheduled messages |
+| `/restartprogress` | Clear learning progress |
+| `/setrepetitiontime HH:MM` | Set repetition time (e.g., `09:00`) |
+| `/setnewwordstime HH:MM` | Set new words time (e.g., `20:00`) |
 | `/help` | Show all commands |
 
 📚 [Full Commands Reference →](COMMANDS.md)
@@ -126,7 +126,7 @@ docker-compose exec postgres psql -U postgres -d constantlearning
 
 3. Ensure bot was added to the group
 
-4. Send `/start-learning` to register the group
+4. Send `/startlearning` to register the group
 
 ### Messages not sending
 
@@ -137,8 +137,8 @@ docker-compose exec postgres psql -U postgres -d constantlearning
 
 2. Verify schedule is set correctly:
    ```
-   /set-repetition-time 09:00
-   /set-new-words-time 20:00
+   /setrepetitiontime 09:00
+   /setnewwordstime 20:00
    ```
 
 3. Wait for scheduled time or check Quartz logs:
@@ -191,7 +191,7 @@ SELECT COUNT(*) FROM "LearnedWords";
 
 Once deployed, you can use these commands in your Telegram group:
 
-### `/restart-progress`
+### `/restartprogress`
 Clears all learned words and starts from scratch. Useful if you want to:
 - Begin learning again from the start
 - Reset after testing
@@ -199,7 +199,7 @@ Clears all learned words and starts from scratch. Useful if you want to:
 
 Example:
 ```
-You: /restart-progress
+You: /restartprogress
 Bot: ✅ Прогрес скинуто!
      Видалено 25 вивчених слів.
      Починаємо навчання спочатку! 🎯

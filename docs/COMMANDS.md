@@ -4,13 +4,13 @@ Complete reference for all Telegram bot commands.
 
 ## Getting Started
 
-### `/start-learning`
+### `/startlearning`
 
 Register your group to start receiving daily word lessons.
 
 **Usage:**
 ```
-/start-learning
+/startlearning
 ```
 
 **Response:**
@@ -22,8 +22,8 @@ Register your group to start receiving daily word lessons.
 • Нові слова для вивчення о 20:00
 
 ⏰ Налаштувати час відправки:
-• /set-repetition-time HH:MM - час повторення
-• /set-new-words-time HH:MM - час нових слів
+• /setrepetitiontime HH:MM - час повторення
+• /setnewwordstime HH:MM - час нових слів
 
 Гарного навчання! 🎯
 ```
@@ -35,13 +35,13 @@ Register your group to start receiving daily word lessons.
 
 ---
 
-### `/stop-learning`
+### `/stoplearning`
 
 Pause scheduled messages for this group.
 
 **Usage:**
 ```
-/stop-learning
+/stoplearning
 ```
 
 **Response:**
@@ -50,22 +50,22 @@ Pause scheduled messages for this group.
 
 📭 Бот більше не надсилатиме повідомлення в цей чат.
 
-Ваш прогрес збережено. Використайте /start-learning щоб продовжити навчання.
+Ваш прогрес збережено. Використайте /startlearning щоб продовжити навчання.
 ```
 
 **Notes:**
 - Progress is saved and not deleted
-- Use `/start-learning` to resume
+- Use `/startlearning` to resume
 
 ---
 
-### `/restart-progress`
+### `/restartprogress`
 
 Clear all learning progress for this group and start from scratch.
 
 **Usage:**
 ```
-/restart-progress
+/restartprogress
 ```
 
 **Response:**
@@ -82,20 +82,20 @@ Clear all learning progress for this group and start from scratch.
 
 ## Schedule Configuration
 
-### `/set-repetition-time`
+### `/setrepetitiontime`
 
 Set the time when daily repetition messages are sent.
 
 **Usage:**
 ```
-/set-repetition-time HH:MM
+/setrepetitiontime HH:MM
 ```
 
 **Examples:**
 ```
-/set-repetition-time 09:00
-/set-repetition-time 08:30
-/set-repetition-time 12:00
+/setrepetitiontime 09:00
+/setrepetitiontime 08:30
+/setrepetitiontime 12:00
 ```
 
 **Response:**
@@ -112,20 +112,20 @@ Set the time when daily repetition messages are sent.
 
 ---
 
-### `/set-new-words-time`
+### `/setnewwordstime`
 
 Set the time when daily new words are sent.
 
 **Usage:**
 ```
-/set-new-words-time HH:MM
+/setnewwordstime HH:MM
 ```
 
 **Examples:**
 ```
-/set-new-words-time 20:00
-/set-new-words-time 19:30
-/set-new-words-time 21:00
+/setnewwordstime 20:00
+/setnewwordstime 19:30
+/setnewwordstime 21:00
 ```
 
 **Response:**
@@ -159,11 +159,11 @@ Show all available commands.
 
 | Command | Description | Requires Registration |
 |---------|-------------|:---------------------:|
-| `/start-learning` | Register group | No |
-| `/stop-learning` | Pause messages | Yes |
-| `/restart-progress` | Clear progress | Yes |
-| `/set-repetition-time HH:MM` | Set repetition time | Yes |
-| `/set-new-words-time HH:MM` | Set new words time | Yes |
+| `/startlearning` | Register group | No |
+| `/stoplearning` | Pause messages | Yes |
+| `/restartprogress` | Clear progress | Yes |
+| `/setrepetitiontime HH:MM` | Set repetition time | Yes |
+| `/setnewwordstime HH:MM` | Set new words time | Yes |
 | `/help` | Show commands | No |
 
 ## Error Messages
@@ -173,10 +173,10 @@ Show all available commands.
 ```
 ℹ️ Цей чат ще не зареєстровано для навчання.
 
-Використайте /start-learning щоб розпочати.
+Використайте /startlearning щоб розпочати.
 ```
 
-**Solution:** Send `/start-learning` first
+**Solution:** Send `/startlearning` first
 
 ### Invalid Time Format
 
@@ -194,11 +194,11 @@ Show all available commands.
 
 ```
 # 1. Register group
-/start-learning
+/startlearning
 
 # 2. Set custom schedule
-/set-repetition-time 08:00
-/set-new-words-time 19:00
+/setrepetitiontime 08:00
+/setnewwordstime 19:00
 
 # 3. Start learning!
 # Bot will send messages automatically
@@ -208,10 +208,10 @@ Show all available commands.
 
 ```
 # Clear all progress
-/restart-progress
+/restartprogress
 
 # Optionally adjust schedule
-/set-repetition-time 10:00
+/setrepetitiontime 10:00
 
 # Learning continues with new schedule
 ```
@@ -220,10 +220,10 @@ Show all available commands.
 
 ```
 # Pause messages
-/stop-learning
+/stoplearning
 
 # Resume when ready
-/start-learning
+/startlearning
 ```
 
 ---

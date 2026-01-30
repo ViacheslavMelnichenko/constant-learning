@@ -45,31 +45,31 @@ public class TelegramBotService(
 
                 logger.LogInformation("Received message from chat {ChatId}: {MessageText}", messageChatId, messageText);
 
-                if (messageText.Equals("/start-learning", StringComparison.OrdinalIgnoreCase))
+                if (messageText.Equals("/startlearning", StringComparison.OrdinalIgnoreCase))
                 {
                     await HandleStartLearningCommand(messageChatId, update.Message.Chat.Title);
                     return;
                 }
 
-                if (messageText.Equals("/stop-learning", StringComparison.OrdinalIgnoreCase))
+                if (messageText.Equals("/stoplearning", StringComparison.OrdinalIgnoreCase))
                 {
                     await HandleStopLearningCommand(messageChatId);
                     return;
                 }
 
-                if (messageText.Equals("/restart-progress", StringComparison.OrdinalIgnoreCase))
+                if (messageText.Equals("/restartprogress", StringComparison.OrdinalIgnoreCase))
                 {
                     await HandleRestartProgressCommand(messageChatId);
                     return;
                 }
 
-                if (messageText.StartsWith("/set-repetition-time", StringComparison.OrdinalIgnoreCase))
+                if (messageText.StartsWith("/setrepetitiontime", StringComparison.OrdinalIgnoreCase))
                 {
                     await HandleSetRepetitionTimeCommand(messageChatId, messageText);
                     return;
                 }
 
-                if (messageText.StartsWith("/set-new-words-time", StringComparison.OrdinalIgnoreCase))
+                if (messageText.StartsWith("/setnewwordstime", StringComparison.OrdinalIgnoreCase))
                 {
                     await HandleSetNewWordsTimeCommand(messageChatId, messageText);
                     return;
@@ -95,7 +95,7 @@ public class TelegramBotService(
     {
         try
         {
-            logger.LogInformation("Processing /start-learning command for chat {ChatId}", messageChatId);
+            logger.LogInformation("Processing /startlearning command for chat {ChatId}", messageChatId);
 
             using var scope = serviceProvider.CreateScope();
             var chatRegistrationService = scope.ServiceProvider.GetRequiredService<IChatRegistrationService>();
@@ -118,7 +118,7 @@ public class TelegramBotService(
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error handling start-learning command for chat {ChatId}", messageChatId);
+            logger.LogError(ex, "Error handling startlearning command for chat {ChatId}", messageChatId);
 
             var errorMessage = botMessages.GetMessage(BotMessageKey.RegistrationError);
             await botClient.SendMessage(chatId: messageChatId, text: errorMessage, parseMode: ParseMode.Markdown);
@@ -129,7 +129,7 @@ public class TelegramBotService(
     {
         try
         {
-            logger.LogInformation("Processing /stop-learning command for chat {ChatId}", messageChatId);
+            logger.LogInformation("Processing /stoplearning command for chat {ChatId}", messageChatId);
 
             using var scope = serviceProvider.CreateScope();
             var chatRegistrationService = scope.ServiceProvider.GetRequiredService<IChatRegistrationService>();
@@ -146,7 +146,7 @@ public class TelegramBotService(
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error handling stop-learning command for chat {ChatId}", messageChatId);
+            logger.LogError(ex, "Error handling stoplearning command for chat {ChatId}", messageChatId);
 
             var errorMessage = botMessages.GetMessage(BotMessageKey.StopLearningError);
             await botClient.SendMessage(chatId: messageChatId, text: errorMessage, parseMode: ParseMode.Markdown);
@@ -157,7 +157,7 @@ public class TelegramBotService(
     {
         try
         {
-            logger.LogInformation("Processing /restart-progress command for chat {ChatId}", messageChatId);
+            logger.LogInformation("Processing /restartprogress command for chat {ChatId}", messageChatId);
 
             using var scope = serviceProvider.CreateScope();
             var progressService = scope.ServiceProvider.GetRequiredService<IProgressService>();
@@ -172,7 +172,7 @@ public class TelegramBotService(
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error handling restart-progress command for chat {ChatId}", messageChatId);
+            logger.LogError(ex, "Error handling restartprogress command for chat {ChatId}", messageChatId);
 
             var errorMessage = botMessages.GetMessage(BotMessageKey.RestartProgressError);
             await botClient.SendMessage(chatId: messageChatId, text: errorMessage, parseMode: ParseMode.Markdown);
@@ -187,7 +187,7 @@ public class TelegramBotService(
             if (parts.Length != 2)
             {
                 var usageMessage = botMessages.GetMessage(BotMessageKey.InvalidTimeCommandFormat,
-                    "/set-repetition-time HH:MM", "/set-repetition-time 09:30");
+                    "/setrepetitiontime HH:MM", "/setrepetitiontime 09:30");
                 await botClient.SendMessage(chatId: messageChatId, text: usageMessage, parseMode: ParseMode.Markdown);
                 return;
             }
@@ -215,7 +215,7 @@ public class TelegramBotService(
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error handling set-repetition-time command for chat {ChatId}. Message: {Message}",
+            logger.LogError(ex, "Error handling setrepetitiontime command for chat {ChatId}. Message: {Message}",
                 messageChatId, ex.Message);
 
             var errorMessage = botMessages.GetMessage(BotMessageKey.UpdateTimeError);
@@ -231,7 +231,7 @@ public class TelegramBotService(
             if (parts.Length != 2)
             {
                 var usageMessage = botMessages.GetMessage(BotMessageKey.InvalidTimeCommandFormat,
-                    "/set-new-words-time HH:MM", "/set-new-words-time 20:00");
+                    "/setnewwordstime HH:MM", "/setnewwordstime 20:00");
                 await botClient.SendMessage(chatId: messageChatId, text: usageMessage, parseMode: ParseMode.Markdown);
                 return;
             }
@@ -259,7 +259,7 @@ public class TelegramBotService(
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error handling set-new-words-time command for chat {ChatId}. Message: {Message}",
+            logger.LogError(ex, "Error handling setnewwordstime command for chat {ChatId}. Message: {Message}",
                 messageChatId, ex.Message);
 
             var errorMessage = botMessages.GetMessage(BotMessageKey.UpdateTimeError);
