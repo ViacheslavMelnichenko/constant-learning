@@ -67,8 +67,8 @@ jobs:
       - name: "🐳 Build and push image"
         uses: docker/build-push-action@v4
         with:
-          context: ConstantLearning/ConstantLearning
-          file: ConstantLearning/ConstantLearning/Dockerfile
+          context: ConstantLearning
+          file: ConstantLearning/Dockerfile
           push: true
           tags: |
             ${{ env.DOCKER_REGISTRY }}/${{ steps.repo_owner.outputs.owner_lc }}/constant-learning:${{ env.IMAGE_TAG }}
