@@ -2,6 +2,7 @@
   <Folder Name="/docs/">
     <File Path="docs/COMMANDS.md" />
     <File Path="docs/QUICKSTART.md" />
+    <File Path="docs/WEBHOOK-SETUP.md" />
   </Folder>
   <Folder Name="/SolutionItems/">
     <File Path=".dockerignore" />
@@ -9,5 +10,6 @@
     <File Path="docker-compose.yml" />
     <File Path="README.md" />
   </Folder>
+  <Project Path="ConstantLearning.Tests/ConstantLearning.Tests.csproj" />
   <Project Path="ConstantLearning/ConstantLearning.csproj" />
 </Solution>

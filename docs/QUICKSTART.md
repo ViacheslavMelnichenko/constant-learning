@@ -1,4 +1,4 @@
-﻿so u# Quick Setup Guide
+﻿# Quick Setup Guide
 
 ## 🚀 Get Started in 5 Minutes
 
@@ -18,6 +18,18 @@ cd constant-learning
 Edit `docker-compose.yml`:
 ```yaml
 Telegram__BotToken: "YOUR_TOKEN_HERE"
+```
+
+**Optional - Webhook URL:**
+```yaml
+# For production: your public HTTPS URL
+Telegram__WebhookUrl: "https://yourdomain.com/api/telegram/webhook"
+
+# For local dev with ngrok (see below)
+Telegram__WebhookUrl: "https://abc123.ngrok.io/api/telegram/webhook"
+
+# Leave empty to skip webhook (bot won't receive messages)
+Telegram__WebhookUrl: ""
 ```
 
 ### Step 3: Start
@@ -60,6 +72,40 @@ The bot will now send:
 ```
 
 ## 🔧 Common Tasks
+
+### Local Development with ngrok
+
+To test the bot locally with webhook support:
+
+1. **Install ngrok**
+   ```bash
+   # Windows (using chocolatey)
+   choco install ngrok
+   
+   # Or download from https://ngrok.com
+   ```
+
+2. **Start ngrok tunnel**
+   ```bash
+   ngrok http 8888
+   ```
+
+3. **Copy the HTTPS URL** from ngrok output:
+   ```
+   Forwarding  https://abc123.ngrok.io -> http://localhost:8888
+   ```
+
+4. **Update docker-compose.yml**
+   ```yaml
+   Telegram__WebhookUrl: "https://abc123.ngrok.io/api/telegram/webhook"
+   ```
+
+5. **Restart the bot**
+   ```bash
+   docker-compose restart app
+   ```
+
+**Note:** ngrok URLs change on each restart. Update the webhook URL accordingly.
 
 ### View Logs
 ```bash

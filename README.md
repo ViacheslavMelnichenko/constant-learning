@@ -12,7 +12,6 @@ A Telegram bot for learning foreign words through spaced repetition. Built with 
 
 1. **Create `docker-compose.yml`**
    ```yaml
-   version: '3.8'
    services:
      db:
        image: postgres:16
@@ -113,6 +112,31 @@ Language__SourceLanguage: "Ukrainian"
 Language__TargetLanguageCode: "pl"
 Language__SourceLanguageCode: "uk"
 ```
+
+### Webhook Configuration (Optional)
+
+For production deployment, configure a webhook URL:
+
+```yaml
+Telegram__WebhookUrl: "https://yourdomain.com/api/telegram/webhook"
+```
+
+**For local development with ngrok:**
+
+1. Install ngrok: https://ngrok.com
+2. Start ngrok: `ngrok http 8888`
+3. Copy the HTTPS URL (e.g., `https://abc123.ngrok.io`)
+4. Set in docker-compose.yml:
+   ```yaml
+   Telegram__WebhookUrl: "https://abc123.ngrok.io/api/telegram/webhook"
+   ```
+
+**Note:** Leave empty to skip webhook registration (bot won't receive messages):
+```yaml
+Telegram__WebhookUrl: ""
+```
+
+📚 **[Complete Webhook Setup Guide →](docs/WEBHOOK-SETUP.md)**
 
 ### Per-Chat Configuration
 
