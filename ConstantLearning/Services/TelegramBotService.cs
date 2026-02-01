@@ -75,6 +75,12 @@ public class TelegramBotService(
                     return;
                 }
 
+                if (messageText.StartsWith("/setwordscount", StringComparison.OrdinalIgnoreCase))
+                {
+                    await HandleSetWordsCountCommand(messageChatId, messageText);
+                    return;
+                }
+
                 if (messageText.Equals("/help", StringComparison.OrdinalIgnoreCase) ||
                     messageText.Equals("/start", StringComparison.OrdinalIgnoreCase))
                 {
@@ -263,6 +269,52 @@ public class TelegramBotService(
                 messageChatId, ex.Message);
 
             var errorMessage = botMessages.GetMessage(BotMessageKey.UpdateTimeError);
+            await botClient.SendMessage(chatId: messageChatId, text: errorMessage, parseMode: ParseMode.Markdown);
+        }
+    }
+
+    private async Task HandleSetWordsCountCommand(long messageChatId, string messageText)
+    {
+        try
+        {
+            var parts = messageText.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            if (parts.Length != 2 || parts[1].Length != 2)
+            {
+                var usageMessage = botMessages.GetMessage(BotMessageKey.InvalidWordsCountFormat);
+                await botClient.SendMessage(chatId: messageChatId, text: usageMessage, parseMode: ParseMode.Markdown);
+                return;
+            }
+
+            var digits = parts[1];
+            if (!int.TryParse(digits[0].ToString(), out var newWordsCount) || 
+                !int.TryParse(digits[1].ToString(), out var repetitionWordsCount) ||
+                newWordsCount < 1 || newWordsCount > 9 ||
+                repetitionWordsCount < 1 || repetitionWordsCount > 9)
+            {
+                var errorMessage = botMessages.GetMessage(BotMessageKey.InvalidWordsCountFormat);
+                await botClient.SendMessage(chatId: messageChatId, text: errorMessage, parseMode: ParseMode.Markdown);
+                return;
+            }
+
+            using var scope = serviceProvider.CreateScope();
+            var chatRegistrationService = scope.ServiceProvider.GetRequiredService<IChatRegistrationService>();
+
+            if (!await EnsureChatRegisteredAsync(messageChatId, chatRegistrationService))
+                return;
+
+            await chatRegistrationService.UpdateWordsCountAsync(messageChatId, newWordsCount, repetitionWordsCount);
+
+            var successMessage = botMessages.GetMessage(BotMessageKey.WordsCountSet, newWordsCount, repetitionWordsCount);
+            await botClient.SendMessage(chatId: messageChatId, text: successMessage, parseMode: ParseMode.Markdown);
+
+            logger.LogInformation("Words count updated: new={NewCount}, repetition={RepCount} for chat {ChatId}", 
+                newWordsCount, repetitionWordsCount, messageChatId);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error handling setwordscount command for chat {ChatId}", messageChatId);
+
+            var errorMessage = botMessages.GetMessage(BotMessageKey.UpdateWordsCountError);
             await botClient.SendMessage(chatId: messageChatId, text: errorMessage, parseMode: ParseMode.Markdown);
         }
     }

@@ -12,6 +12,7 @@ public interface IChatRegistrationService
     Task DeactivateChatAsync(long chatId);
     Task UpdateRepetitionTimeAsync(long chatId, string time);
     Task UpdateNewWordsTimeAsync(long chatId, string time);
+    Task UpdateWordsCountAsync(long chatId, int newWordsCount, int repetitionWordsCount);
     Task<ChatRegistration?> GetChatRegistrationAsync(long chatId);
 }
 
@@ -105,6 +106,23 @@ public class ChatRegistrationService(AppDbContext context, ILogger<ChatRegistrat
         registration.NewWordsTime = time;
         await context.SaveChangesAsync();
         logger.LogInformation("Updated new words time to {Time} for chat {ChatId}", time, chatId);
+    }
+
+    public async Task UpdateWordsCountAsync(long chatId, int newWordsCount, int repetitionWordsCount)
+    {
+        var registration = await context.ChatRegistrations
+            .FirstOrDefaultAsync(cr => cr.ChatId == chatId && cr.IsActive);
+
+        if (registration == null)
+        {
+            throw new InvalidOperationException($"Chat {chatId} is not registered or not active");
+        }
+
+        registration.NewWordsCount = newWordsCount;
+        registration.RepetitionWordsCount = repetitionWordsCount;
+        await context.SaveChangesAsync();
+        logger.LogInformation("Updated words count: new={NewCount}, repetition={RepCount} for chat {ChatId}", 
+            newWordsCount, repetitionWordsCount, chatId);
     }
 
     public async Task<ChatRegistration?> GetChatRegistrationAsync(long chatId)

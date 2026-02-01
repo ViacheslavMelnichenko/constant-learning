@@ -1,29 +1,64 @@
 ﻿# Telegram Language Learning Bot
 
-A production-ready Telegram bot for learning foreign words through spaced repetition. Built with .NET 10, PostgreSQL, and EF Core.
+A Telegram bot for learning foreign words through spaced repetition. Built with .NET 10, PostgreSQL, and scheduled daily lessons.
 
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Docker Desktop
+- Docker & Docker Compose
 - Telegram bot token from [@BotFather](https://t.me/BotFather)
 
-### Setup
+### Option 1: Use Pre-built Image (Recommended)
 
-1. **Clone the repository**
+1. **Create `docker-compose.yml`**
+   ```yaml
+   version: '3.8'
+   services:
+     db:
+       image: postgres:16
+       environment:
+         POSTGRES_DB: constant_learning
+         POSTGRES_USER: bot
+         POSTGRES_PASSWORD: your_password
+       volumes:
+         - postgres_data:/var/lib/postgresql/data
+
+     app:
+       image: ghcr.io/viacheslavmelnichenko/constant-learning:latest
+       depends_on:
+         - db
+       environment:
+         Telegram__BotToken: "YOUR_BOT_TOKEN_HERE"
+         ConnectionStrings__DefaultConnection: "Host=db;Database=constant_learning;Username=bot;Password=your_password"
+       ports:
+         - "8888:8888"
+
+   volumes:
+     postgres_data:
+   ```
+
+2. **Start**
+   ```bash
+   docker-compose up -d
+   ```
+
+3. **Register your group**  
+   Add the bot to your Telegram group and send: `/startlearning`
+
+### Option 2: Build from Source
+
+1. **Clone and configure**
    ```bash
    git clone https://github.com/ViacheslavMelnichenko/constant-learning.git
    cd constant-learning
    ```
 
-2. **Configure the bot**
-   
-   Edit `docker-compose.yml` and set your bot token:
+2. **Edit `docker-compose.yml`**
    ```yaml
    Telegram__BotToken: "YOUR_BOT_TOKEN_HERE"
    ```
 
-3. **Start the services**
+3. **Start**
    ```bash
    docker-compose up -d
    ```
@@ -32,183 +67,102 @@ A production-ready Telegram bot for learning foreign words through spaced repeti
    
    Add the bot to your Telegram group and send:
    ```
-   /start-learning
+   /startlearning
    ```
-
-That's it! The bot will now send scheduled word lessons to your group.
 
 ## ✨ Features
 
-- 🔄 **Multi-Chat Support** - Multiple groups with independent progress
-- 🌍 **Language Agnostic** - Any language pair (Polish/Ukrainian by default)
-- ⏰ **Per-Chat Scheduling** - Each group sets its own learning times
-- 💾 **Progress Tracking** - Persistent learning state per group
-- 🎯 **Spaced Repetition** - Automatic review of learned words
-- 📚 **Frequency-Based** - Words ordered by real-world usage
-- 🐳 **Docker Ready** - One command deployment
+- 🔄 Multi-chat support with independent progress
+- 🌍 Language agnostic (Polish/Ukrainian by default)
+- ⏰ Per-chat scheduling
+- 🎯 Spaced repetition
+- 📚 Frequency-based word ordering
+- 🐳 Docker ready
 
-## 📖 Bot Commands
+## 📖 Commands
 
-- `/startlearning` - Register group for learning
-- `/stoplearning` - Pause scheduled messages
-- `/restartprogress` - Clear learning progress
-- `/setrepetitiontime HH:MM` - Set daily repetition time (e.g., `09:00`)
-- `/setnewwordstime HH:MM` - Set daily new words time (e.g., `20:00`)
-- `/help` - Show all commands
+| Command | Description |
+|---------|-------------|
+| `/startlearning` | Register group for learning |
+| `/stoplearning` | Pause scheduled messages |
+| `/restartprogress` | Clear learning progress |
+| `/setrepetitiontime HH:MM` | Set daily repetition time |
+| `/setnewwordstime HH:MM` | Set daily new words time |
+| `/setwordscount XY` | Set word counts (X=new, Y=repetition) |
+| `/help` | Show all commands |
 
 📚 **[Full Commands Reference →](docs/COMMANDS.md)**
 
 ## 🔧 Configuration
 
-### Basic Settings
-
-Edit `docker-compose.yml`:
+### Basic Settings (docker-compose.yml)
 
 ```yaml
-# Telegram Bot
-Telegram__BotToken: "YOUR_BOT_TOKEN"
+# Telegram
+Telegram__BotToken: "YOUR_TOKEN"
+Telegram__WebhookUrl: "https://yourdomain.com/api/telegram/webhook"  # Optional
 
-# Learning Parameters
-Learning__RepetitionWordsCount: "10"    # Words to repeat daily
-Learning__NewWordsCount: "3"            # New words per day
-Learning__AnswerDelaySeconds: "30"      # Delay before showing answers
+# Learning (defaults)
+Learning__NewWordsCount: "3"
+Learning__RepetitionWordsCount: "10"
+Learning__AnswerDelaySeconds: "30"
 
-# Language Settings (any language pair)
+# Language
 Language__TargetLanguage: "Polish"
 Language__SourceLanguage: "Ukrainian"
 Language__TargetLanguageCode: "pl"
 Language__SourceLanguageCode: "uk"
 ```
 
-### Changing Language
+### Per-Chat Configuration
 
-The bot automatically imports all CSV files from `Resources/Words/` folder.
-
-To add a new language:
-1. Create a CSV file: `words-{target}-{source}.csv` (e.g., `words-english-ukrainian.csv`)
-2. Place it in `Resources/Words/` folder
-3. Update language settings:
-
-```yaml
-Language__TargetLanguage: "English"
-Language__TargetLanguageCode: "en"
-Language__SourceLanguage: "Ukrainian"
-Language__SourceLanguageCode: "uk"
-```
-
-**Note:** All CSV files in the folder will be imported on first startup.
-
-### Per-Chat Schedules
-
-Each group can set its own schedule:
-
+Each group can customize:
 ```
 /setrepetitiontime 09:00
 /setnewwordstime 20:00
+/setwordscount 35
 ```
 
-Default times for new groups: 09:00 (repetition) and 20:00 (new words).
+### Change Language
+
+1. Add CSV file to `Resources/Words/`: `words-{target}-{source}.csv`
+2. Update `docker-compose.yml` language settings
+3. Restart: `docker-compose restart app`
 
 ## 📊 How It Works
 
-### Daily Flow
-
-**Morning (09:00 by default)** - Repetition:
+**Morning (09:00)** - Repetition:
 ```
 📚 Повторення — згадайте переклад:
 1. бути
 2. мати
-...
 
-[30 seconds later]
+[30s later]
 
 ✅ Відповіді:
-1.  бути      →  być  [być]
-2.  мати      →  mieć [mjeć]
-...
+1. бути → być [być]
+2. мати → mieć [mjeć]
 ```
 
-**Evening (20:00 by default)** - New Words:
+**Evening (20:00)** - New Words:
 ```
 🆕 Нові слова:
-
-1.  tak   [tak]   → так
-2.  dla   [dla]   → для
-3.  więc  [vjenʦ] → отже
+1. tak [tak] → так
+2. dla [dla] → для
 ```
 
-### Architecture
-
-```
-┌─────────────┐
-│  Telegram   │
-│   Groups    │
-└──────┬──────┘
-       │
-       ▼
-┌─────────────────┐
-│  Telegram Bot   │
-│   (Webhooks)    │
-└────────┬────────┘
-         │
-         ▼
-┌─────────────────┐      ┌──────────────┐
-│   Bot Service   │◄────►│  PostgreSQL  │
-│   - Commands    │      │  - Words     │
-│   - Formatting  │      │  - Progress  │
-└────────┬────────┘      │  - Chats     │
-         │               └──────────────┘
-         ▼
-┌─────────────────┐
-│  Quartz Jobs    │
-│  (Every minute) │
-│  - Check times  │
-│  - Send msgs    │
-└─────────────────┘
-```
-
-## 🗄️ Database
-
-- **Words** - Vocabulary with frequency ranking
-- **LearnedWords** - Per-group learning progress
-- **ChatRegistrations** - Active groups with schedules
-- **BotConfigurations** - Runtime settings
-
-## 🐳 Docker Deployment
+## 🐳 Docker Commands
 
 ```bash
-# Start all services
-docker-compose up -d
-
-# View logs
-docker-compose logs -f app
-
-# Restart bot
-docker-compose restart app
-
-# Stop all
-docker-compose down
+docker-compose up -d          # Start
+docker-compose logs -f app    # View logs
+docker-compose restart app    # Restart
+docker-compose down           # Stop
 ```
 
-## 🌐 Production Deployment (Webhook)
-
-For production, configure webhook instead of polling:
-
-```yaml
-# docker-compose.yml
-Telegram__WebhookUrl: "https://yourdomain.com/api/telegram/webhook"
-```
-
-📚 **[Webhook Setup Guide →](docs/WEBHOOK-SETUP.md)**
 
 ## 🛠️ Development
 
-### Requirements
-- .NET 10.0 SDK
-- PostgreSQL 16+
-- Telegram Bot Token
-
-### Local Run
 ```bash
 cd ConstantLearning
 dotnet restore
@@ -226,32 +180,14 @@ dotnet ef database update
 
 ```
 ConstantLearning/
-├── Configuration/       # IOptions configuration
-├── Data/               # EF Core entities
-│   └── Entities/
-├── Enums/              # Application enums
-├── Services/           # Business logic
-├── Jobs/               # Quartz scheduled jobs
-├── Controllers/        # Telegram webhook endpoint
-├── HostedServices/     # Background services
-├── Resources/          # Localization & templates
-│   ├── BotMessages.json
-│   ├── Templates/      # HTML templates
-│   └── Words/          # CSV vocabulary files
-├── Migrations/         # Database migrations
-├── docs/               # Documentation
-└── docker-compose.yml  # Docker setup
+├── Configuration/      # IOptions config
+├── Data/              # EF Core entities
+├── Services/          # Business logic
+├── Jobs/              # Quartz scheduled jobs
+├── Controllers/       # Telegram webhook
+├── Resources/         # Messages & word lists
+└── Migrations/        # Database migrations
 ```
-
-## 📖 Documentation
-
-- **[Quick Start Guide](docs/QUICKSTART.md)** - Detailed setup
-- **[Commands Reference](docs/COMMANDS.md)** - All bot commands
-- **[Webhook Setup](docs/WEBHOOK-SETUP.md)** - Production deployment
-
-## 🤝 Contributing
-
-Contributions welcome! Please submit a Pull Request.
 
 ## 📄 License
 

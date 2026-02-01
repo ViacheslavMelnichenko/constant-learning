@@ -26,7 +26,6 @@ public class NewWordsJob(
         {
             logger.LogInformation("Starting new words job check for all registered chats");
 
-            // Get all active chats
             using var scope = serviceProvider.CreateScope();
             var chatRegistrationService = scope.ServiceProvider.GetRequiredService<IChatRegistrationService>();
             var activeChatIds = await chatRegistrationService.GetAllActiveChatIdsAsync();
@@ -37,7 +36,6 @@ public class NewWordsJob(
                 return;
             }
 
-            // Get current time in HH:mm format
             var currentTime = DateTime.Now.ToString("HH:mm");
             var currentHour = DateTime.Now.Hour;
             var currentMinute = DateTime.Now.Minute;
@@ -55,7 +53,6 @@ public class NewWordsJob(
                     if (chatRegistration == null)
                         continue;
 
-                    // Parse configured time
                     var configuredTime = chatRegistration.NewWordsTime;
                     var timeParts = configuredTime.Split(':');
                     if (timeParts.Length != 2)
@@ -64,7 +61,6 @@ public class NewWordsJob(
                     var configuredHour = int.Parse(timeParts[0]);
                     var configuredMinute = int.Parse(timeParts[1]);
 
-                    // Check if current time matches configured time (within same hour and minute)
                     if (currentHour == configuredHour && currentMinute == configuredMinute)
                     {
                         await ProcessNewWordsForChatAsync(chatId);
@@ -74,7 +70,6 @@ public class NewWordsJob(
                 catch (Exception ex)
                 {
                     logger.LogError(ex, "Error processing new words check for chat {ChatId}", chatId);
-                    // Continue with other chats
                 }
             }
 
@@ -91,7 +86,18 @@ public class NewWordsJob(
     {
         logger.LogInformation("Starting new words for chat {ChatId}", chatId);
 
-        var words = await wordService.GetNewWordsAsync(chatId, _learningOptions.NewWordsCount);
+        using var scope = serviceProvider.CreateScope();
+        var chatRegistrationService = scope.ServiceProvider.GetRequiredService<IChatRegistrationService>();
+        var chatRegistration = await chatRegistrationService.GetChatRegistrationAsync(chatId);
+        
+        if (chatRegistration == null)
+        {
+            logger.LogWarning("Chat registration not found for chat {ChatId}", chatId);
+            return;
+        }
+
+        var wordsCount = chatRegistration.NewWordsCount > 0 ? chatRegistration.NewWordsCount : _learningOptions.NewWordsCount;
+        var words = await wordService.GetNewWordsAsync(chatId, wordsCount);
 
         if (words.Count == 0)
         {
@@ -101,11 +107,9 @@ public class NewWordsJob(
             return;
         }
 
-        // Send new words
         var message = messageFormatterService.FormatNewWords(words);
         await telegramBotService.SendMessageAsync(message, chatId, ParseMode.Html);
 
-        // Mark as learned
         await wordService.MarkWordsAsLearnedAsync(chatId, words.Select(w => w.Id));
 
         logger.LogInformation("New words completed for chat {ChatId}. Words learned: {Count}", chatId, words.Count);

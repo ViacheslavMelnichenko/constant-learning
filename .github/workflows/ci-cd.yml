@@ -4,14 +4,6 @@ on:
   push:
     branches:
       - main
-  workflow_dispatch:
-    inputs:
-      environment:
-        description: 'Target environment (only staging supported)'
-        required: true
-        type: choice
-        options:
-          - staging
 
 permissions:
   contents: read
@@ -22,12 +14,12 @@ env:
   IMAGE_TAG: ${{ github.sha }}
 
 jobs:
-  build-and-test:
-    name: "🏗️ Build & Test"
+  build-and-push:
+    name: "Build & Push"
     runs-on: ubuntu-latest
 
     steps:
-      - name: "📥 Checkout code"
+      - name: "📥 Checkout"
         uses: actions/checkout@v4
 
       - name: "⚙️ Setup .NET"
@@ -35,118 +27,30 @@ jobs:
         with:
           dotnet-version: '10.0.x'
 
-      - name: "📦 Restore dependencies"
-        run: dotnet restore ConstantLearning.slnx
-
-      - name: "🔨 Build solution"
-        run: dotnet build ConstantLearning.slnx --no-restore --configuration Release
-
-  build-image:
-    name: "🐳 Build and push image"
-    needs: build-and-test
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: "📥 Checkout code"
-        uses: actions/checkout@v4
+      - name: "🔨 Build"
+        run: dotnet build ConstantLearning.slnx --configuration Release
 
       - name: "🔧 Setup owner"
-        id: repo_owner
+        id: owner
         run: echo "owner_lc=$(echo ${{ github.repository_owner }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
 
-      - name: "🔧 Setup buildx"
-        uses: docker/setup-buildx-action@v2
+      - name: "🔧 Setup Docker Buildx"
+        uses: docker/setup-buildx-action@v3
 
-      - name: "🔑 Login to GitHub Container Registry"
+      - name: "🔑 Login to GHCR"
         uses: docker/login-action@v3
         with:
           registry: ${{ env.DOCKER_REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: "🐳 Build and push image"
-        uses: docker/build-push-action@v4
+      - name: "🐳 Build & Push"
+        uses: docker/build-push-action@v5
         with:
-          context: ConstantLearning
-          file: ConstantLearning/Dockerfile
+          context: ./ConstantLearning
+          file: ./ConstantLearning/Dockerfile
           push: true
           tags: |
-            ${{ env.DOCKER_REGISTRY }}/${{ steps.repo_owner.outputs.owner_lc }}/constant-learning:${{ env.IMAGE_TAG }}
-            ${{ env.DOCKER_REGISTRY }}/${{ steps.repo_owner.outputs.owner_lc }}/constant-learning:latest
+            ${{ env.DOCKER_REGISTRY }}/${{ steps.owner.outputs.owner_lc }}/constant-learning:${{ env.IMAGE_TAG }}
+            ${{ env.DOCKER_REGISTRY }}/${{ steps.owner.outputs.owner_lc }}/constant-learning:latest
 
-#  deploy-staging:
-#    name: "🚀 Deploy to Staging"
-#    needs: build-image
-#    if: github.ref == 'refs/heads/main'
-#    runs-on: ubuntu-latest
-#    environment: staging
-#    env:
-#      KUBECONFIG_PATH: ${{ runner.temp }}/kubeconfig
-#      NAMESPACE: apps-staging
-#
-#    steps:
-#      - name: "📥 Checkout code"
-#        uses: actions/checkout@v4
-#
-#      - name: "🔧 Setup owner"
-#        id: setup
-#        run: echo "owner_lc=$(echo ${{ github.repository_owner }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
-#
-#      - name: "🔐 Restore kubeconfig (optional)"
-#        if: secrets.KUBECONFIG_BASE64 != ''
-#        run: |
-#          echo "Restoring KUBECONFIG from secret to ${{ env.KUBECONFIG_PATH }}"
-#          echo "${{ secrets.KUBECONFIG_BASE64 }}" | base64 -d > ${{ env.KUBECONFIG_PATH }}
-#          chmod 600 ${{ env.KUBECONFIG_PATH }}
-#          echo "KUBECONFIG=${{ env.KUBECONFIG_PATH }}" >> $GITHUB_ENV
-#
-#      - name: "✅ Verify Kubernetes access"
-#        run: |
-#          if [ -n "${{ env.KUBECONFIG_PATH }}" ] && [ -f "${{ env.KUBECONFIG_PATH }}" ]; then
-#            kubectl --kubeconfig=${{ env.KUBECONFIG_PATH }} config current-context || true
-#            kubectl --kubeconfig=${{ env.KUBECONFIG_PATH }} get nodes || true
-#          else
-#            kubectl config current-context || true
-#            kubectl get nodes || true
-#          fi
-#
-#      - name: "🔐 Create/Update Telegram secret from GitHub secrets"
-#        if: secrets.TELEGRAM_BOT_TOKEN != '' && secrets.TELEGRAM_WEBHOOK_URL != ''
-#        run: |
-#          kubectl create secret generic telegram-credentials \
-#            --from-literal=Telegram__BotToken="${{ secrets.TELEGRAM_BOT_TOKEN }}" \
-#            --from-literal=Telegram__WebhookUrl="${{ secrets.TELEGRAM_WEBHOOK_URL }}" \
-#            --dry-run=client -o yaml | kubectl apply -n ${{ env.NAMESPACE }} -f -
-#
-#      - name: "🔐 Create/Update DB secret from GitHub secret"
-#        if: secrets.DB_CONNECTION_STRING != ''
-#        run: |
-#          kubectl create secret generic db-credentials \
-#            --from-literal=ConnectionStrings__DefaultConnection="${{ secrets.DB_CONNECTION_STRING }}" \
-#            --dry-run=client -o yaml | kubectl apply -n ${{ env.NAMESPACE }} -f -
-#
-#      - name: "🏷️ Update image tags in kustomize"
-#        run: |
-#          IMAGE_TAG=${{ env.IMAGE_TAG }}
-#          OWNER=${{ steps.setup.outputs.owner_lc }}
-#          sed -i "s/GITHUB_USERNAME/${OWNER}/g" k8s/base/kustomization.yaml || true
-#          sed -i "s|SHA_REPLACED_BY_CICD|${IMAGE_TAG}|g" k8s/base/kustomization.yaml || true
-#          sed -i "s/GITHUB_USERNAME/${OWNER}/g" k8s/overlays/staging/kustomization.yaml || true
-#          sed -i "s|SHA_REPLACED_BY_CICD|${IMAGE_TAG}|g" k8s/overlays/staging/kustomization.yaml || true
-#
-#      - name: "👀 Preview manifests"
-#        run: |
-#          kubectl kustomize k8s/overlays/staging | head -n 200 || true
-#
-#      - name: "🚀 Deploy to Kubernetes"
-#        run: |
-#          kubectl apply -k k8s/overlays/staging
-#
-#      - name: "⏳ Wait for rollout"
-#        run: |
-#          kubectl rollout status deployment/constant-learning -n ${{ env.NAMESPACE }} --timeout=2m || true
-#
-#      - name: "📊 Deployment status"
-#        run: |
-#          echo "=== Pods ==="
-#          kubectl get pods -n ${{ env.NAMESPACE }} || true

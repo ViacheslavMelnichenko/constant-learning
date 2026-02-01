@@ -1,6 +1,9 @@
 <Solution>
   <Folder Name="/docs/">
     <File Path="docs/COMMANDS.md" />
+    <File Path="docs/GITHUB-SECRETS.md" />
+    <File Path="docs/QUICKSTART.md" />
+    <File Path="docs/README.md" />
   </Folder>
   <Folder Name="/SolutionItems/">
     <File Path=".dockerignore" />

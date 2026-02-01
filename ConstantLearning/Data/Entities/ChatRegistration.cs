@@ -9,4 +9,6 @@ public class ChatRegistration
     public bool IsActive { get; set; } = true;
     public string RepetitionTime { get; set; } = "09:00";
     public string NewWordsTime { get; set; } = "20:00";
+    public int NewWordsCount { get; set; } = 3;
+    public int RepetitionWordsCount { get; set; } = 10;
 }

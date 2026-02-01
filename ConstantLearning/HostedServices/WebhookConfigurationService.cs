@@ -23,7 +23,6 @@ public class WebhookConfigurationService(
             return;
         }
 
-        // Auto-correct: append endpoint if missing
         const string requiredEndpoint = "/api/telegram/webhook";
         if (!webhookUrl.EndsWith(requiredEndpoint, StringComparison.OrdinalIgnoreCase))
         {
@@ -31,12 +30,6 @@ public class WebhookConfigurationService(
             logger.LogInformation("WebhookUrl corrected to: {WebhookUrl}", webhookUrl);
         }
 
-        // Validate URL
-        if (!Uri.TryCreate(webhookUrl, UriKind.Absolute, out var uri) || uri.Scheme != "https")
-        {
-            logger.LogError("Invalid webhook URL (must be HTTPS): {WebhookUrl}", webhookUrl);
-            throw new InvalidOperationException($"Invalid webhook URL: {webhookUrl}");
-        }
 
         try
         {

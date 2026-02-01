@@ -23,6 +23,11 @@ public enum BotMessageKey
     NewWordsTimeSet,
     UpdateTimeError,
     
+    // Words Count Configuration
+    InvalidWordsCountFormat,
+    WordsCountSet,
+    UpdateWordsCountError,
+    
     // Help
     Help,
     

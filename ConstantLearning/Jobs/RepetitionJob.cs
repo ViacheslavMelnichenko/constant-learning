@@ -24,7 +24,6 @@ public class RepetitionJob(
         {
             logger.LogInformation("Starting repetition job check for all registered chats");
 
-            // Get all active chats
             using var scope = serviceProvider.CreateScope();
             var chatRegistrationService = scope.ServiceProvider.GetRequiredService<IChatRegistrationService>();
             var activeChatIds = await chatRegistrationService.GetAllActiveChatIdsAsync();
@@ -35,7 +34,6 @@ public class RepetitionJob(
                 return;
             }
 
-            // Get current time in HH:mm format
             var currentTime = DateTime.Now.ToString("HH:mm");
             var currentHour = DateTime.Now.Hour;
             var currentMinute = DateTime.Now.Minute;
@@ -53,7 +51,6 @@ public class RepetitionJob(
                     if (chatRegistration == null)
                         continue;
 
-                    // Parse configured time
                     var configuredTime = chatRegistration.RepetitionTime;
                     var timeParts = configuredTime.Split(':');
                     if (timeParts.Length != 2)
@@ -62,7 +59,6 @@ public class RepetitionJob(
                     var configuredHour = int.Parse(timeParts[0]);
                     var configuredMinute = int.Parse(timeParts[1]);
 
-                    // Check if current time matches configured time (within same hour and minute)
                     if (currentHour == configuredHour && currentMinute == configuredMinute)
                     {
                         await ProcessRepetitionForChatAsync(chatId);
@@ -72,7 +68,6 @@ public class RepetitionJob(
                 catch (Exception ex)
                 {
                     logger.LogError(ex, "Error processing repetition check for chat {ChatId}", chatId);
-                    // Continue with other chats
                 }
             }
 
@@ -89,7 +84,18 @@ public class RepetitionJob(
     {
         logger.LogInformation("Starting repetition for chat {ChatId}", chatId);
 
-        var words = await wordService.GetRandomLearnedWordsAsync(chatId, _learningOptions.RepetitionWordsCount);
+        using var scope = serviceProvider.CreateScope();
+        var chatRegistrationService = scope.ServiceProvider.GetRequiredService<IChatRegistrationService>();
+        var chatRegistration = await chatRegistrationService.GetChatRegistrationAsync(chatId);
+        
+        if (chatRegistration == null)
+        {
+            logger.LogWarning("Chat registration not found for chat {ChatId}", chatId);
+            return;
+        }
+
+        var wordsCount = chatRegistration.RepetitionWordsCount > 0 ? chatRegistration.RepetitionWordsCount : _learningOptions.RepetitionWordsCount;
+        var words = await wordService.GetRandomLearnedWordsAsync(chatId, wordsCount);
 
         if (words.Count == 0)
         {
@@ -97,18 +103,14 @@ public class RepetitionJob(
             return;
         }
 
-        // Send questions (source language only)
         var questionsMessage = messageFormatterService.FormatRepetitionQuestions(words);
         await telegramBotService.SendMessageAsync(questionsMessage, chatId);
 
-        // Wait before showing answers
         await Task.Delay(TimeSpan.FromSeconds(_learningOptions.AnswerDelaySeconds));
 
-        // Send answers (target language + transcription)
         var answersMessage = messageFormatterService.FormatRepetitionAnswers(words);
         await telegramBotService.SendMessageAsync(answersMessage, chatId, ParseMode.Html);
 
-        // Update repetition stats
         await wordService.UpdateRepetitionAsync(chatId, words.Select(w => w.Id));
 
         logger.LogInformation("Repetition completed for chat {ChatId}. Words repeated: {Count}", chatId, words.Count);

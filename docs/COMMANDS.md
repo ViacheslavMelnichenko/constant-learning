@@ -142,6 +142,41 @@ Set the time when daily new words are sent.
 
 ---
 
+### `/setwordscount`
+
+Set how many words to show per session (2-digit command).
+
+**Usage:**
+```
+/setwordscount XY
+```
+
+Where:
+- **X** = New words count (1-9)
+- **Y** = Repetition words count (1-9)
+
+**Examples:**
+```
+/setwordscount 35  (3 new, 5 repetition)
+/setwordscount 28  (2 new, 8 repetition)
+/setwordscount 55  (5 new, 5 repetition)
+```
+
+**Response:**
+```
+✅ Кількість слів оновлено!
+
+🆕 Нові слова: 3
+🔄 Повторення: 5
+```
+
+**Notes:**
+- Each group can have different word counts
+- Default: 3 new, 10 repetition
+- Changes apply to next scheduled message
+
+---
+
 ## Help
 
 ### `/help`
@@ -164,6 +199,7 @@ Show all available commands.
 | `/restartprogress` | Clear progress | Yes |
 | `/setrepetitiontime HH:MM` | Set repetition time | Yes |
 | `/setnewwordstime HH:MM` | Set new words time | Yes |
+| `/setwordscount XY` | Set word counts | Yes |
 | `/help` | Show commands | No |
 
 ## Error Messages

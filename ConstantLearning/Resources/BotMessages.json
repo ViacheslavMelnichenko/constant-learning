@@ -1,7 +1,7 @@
 ﻿{
   "uk": {
     "ChatAlreadyRegistered": "ℹ️ Цей чат вже зареєстровано для навчання!\n\nВи вже отримуєте повідомлення згідно з розкладом.",
-    "ChatRegisteredSuccess": "✅ *Чат успішно зареєстровано!*\n\n📚 Бот буде надсилати:\n• Повторення вивчених слів о *09:00*\n• Нові слова для вивчення о *20:00*\n\n⏰ Налаштувати час відправки:\n• `/setrepetitiontime HH:MM` - час повторення\n• `/setnewwordstime HH:MM` - час нових слів\n\nГарного навчання! 🎯",
+    "ChatRegisteredSuccess": "✅ *Чат успішно зареєстровано!*\n\n📚 Бот буде надсилати:\n• Повторення вивчених слів о *09:00*\n• Нові слова для вивчення о *20:00*\n\n⏰ Налаштувати час відправки:\n• `/setrepetitiontime HH:MM` - час повторення\n• `/setnewwordstime HH:MM` - час нових слів\n• `/setwordscount XY` - кількість слів (X=нові, Y=повторення)\n\nГарного навчання! 🎯",
     "RegistrationError": "❌ Помилка при реєстрації. Спробуйте пізніше.",
     
     "ChatNotRegistered": "ℹ️ Цей чат ще не зареєстровано для навчання.\n\nВикористайте `/startlearning` щоб розпочати.",
@@ -17,7 +17,11 @@
     "NewWordsTimeSet": "✅ Час нових слів встановлено на *{0}*\n\nНові слова будуть надсилатися щодня о цій годині.",
     "UpdateTimeError": "❌ Помилка при оновленні часу. Спробуйте пізніше.",
     
-    "Help": "📚 *Бот для вивчення мов*\n\n🔹 Доступні команди:\n• `/startlearning` - Розпочати навчання в цій групі\n• `/stoplearning` - Зупинити навчання\n• `/restartprogress` - Скинути прогрес навчання\n• `/setrepetitiontime HH:MM` - Встановити час повторення\n• `/setnewwordstime HH:MM` - Встановити час нових слів\n\n📝 Після реєстрації бот автоматично надсилає:\n• Повторення вивчених слів\n• Нові слова для вивчення\n\n⏰ Налаштуйте графік відправки за допомогою команд вище.",
+    "InvalidWordsCountFormat": "❌ Невірний формат команди.\n\nВикористання: `/setwordscount XY`\nX = кількість нових слів (1-9)\nY = кількість слів для повторення (1-9)\n\nПриклад: `/setwordscount 35` (3 нові, 5 повторення)",
+    "WordsCountSet": "✅ Кількість слів оновлено!\n\n🆕 Нові слова: *{0}*\n🔄 Повторення: *{1}*",
+    "UpdateWordsCountError": "❌ Помилка при оновленні кількості слів. Спробуйте пізніше.",
+    
+    "Help": "📚 *Бот для вивчення мов*\n\n🔹 Доступні команди:\n• `/startlearning` - Розпочати навчання в цій групі\n• `/stoplearning` - Зупинити навчання\n• `/restartprogress` - Скинути прогрес навчання\n• `/setrepetitiontime HH:MM` - Встановити час повторення\n• `/setnewwordstime HH:MM` - Встановити час нових слів\n• `/setwordscount XY` - Кількість слів (X=нові, Y=повторення)\n\n📝 Після реєстрації бот автоматично надсилає:\n• Повторення вивчених слів\n• Нові слова для вивчення\n\n⏰ Налаштуйте графік відправки за допомогою команд вище.",
     
     "NoRepetitionWords": "Немає слів для повторення.",
     "RepetitionHeader": "Повторення — згадайте переклад:",
@@ -28,7 +32,7 @@
   },
   "en": {
     "ChatAlreadyRegistered": "ℹ️ This chat is already registered for learning!\n\nYou're already receiving scheduled messages.",
-    "ChatRegisteredSuccess": "✅ *Chat successfully registered!*\n\n📚 Bot will send:\n• Repetition of learned words at *09:00*\n• New words to learn at *20:00*\n\n⏰ Configure schedule:\n• `/setrepetitiontime HH:MM` - repetition time\n• `/setnewwordstime HH:MM` - new words time\n\nHappy learning! 🎯",
+    "ChatRegisteredSuccess": "✅ *Chat successfully registered!*\n\n📚 Bot will send:\n• Repetition of learned words at *09:00*\n• New words to learn at *20:00*\n\n⏰ Configure schedule:\n• `/setrepetitiontime HH:MM` - repetition time\n• `/setnewwordstime HH:MM` - new words time\n• `/setwordscount XY` - word counts (X=new, Y=repetition)\n\nHappy learning! 🎯",
     "RegistrationError": "❌ Error during registration. Please try again later.",
     
     "ChatNotRegistered": "ℹ️ This chat is not registered for learning.\n\nUse `/startlearning` to begin.",
@@ -44,7 +48,11 @@
     "NewWordsTimeSet": "✅ New words time set to *{0}*\n\nNew words will be sent daily at this time.",
     "UpdateTimeError": "❌ Error updating time. Please try again later.",
     
-    "Help": "📚 *Language Learning Bot*\n\n🔹 Available commands:\n• `/startlearning` - Start learning in this chat\n• `/stoplearning` - Stop learning\n• `/restartprogress` - Reset learning progress\n• `/setrepetitiontime HH:MM` - Set repetition time\n• `/setnewwordstime HH:MM` - Set new words time\n\n📝 After registration, the bot automatically sends:\n• Repetition of learned words\n• New words to learn\n\n⏰ Configure the schedule using the commands above.",
+    "InvalidWordsCountFormat": "❌ Invalid command format.\n\nUsage: `/setwordscount XY`\nX = new words count (1-9)\nY = repetition words count (1-9)\n\nExample: `/setwordscount 35` (3 new, 5 repetition)",
+    "WordsCountSet": "✅ Words count updated!\n\n🆕 New words: *{0}*\n🔄 Repetition: *{1}*",
+    "UpdateWordsCountError": "❌ Error updating words count. Please try again later.",
+    
+    "Help": "📚 *Language Learning Bot*\n\n🔹 Available commands:\n• `/startlearning` - Start learning in this chat\n• `/stoplearning` - Stop learning\n• `/restartprogress` - Reset learning progress\n• `/setrepetitiontime HH:MM` - Set repetition time\n• `/setnewwordstime HH:MM` - Set new words time\n• `/setwordscount XY` - Word counts (X=new, Y=repetition)\n\n📝 After registration, the bot automatically sends:\n• Repetition of learned words\n• New words to learn\n\n⏰ Configure the schedule using the commands above.",
     
     "NoRepetitionWords": "No words for repetition.",
     "RepetitionHeader": "Repetition — recall the translation:",
